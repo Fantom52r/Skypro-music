@@ -15,7 +15,6 @@ export default function Home() {
           <main className="main">
             <Header />
             <CenterBlock />
-            <TrackList />
             <SideBar />
           </main>
           <PlayerBar />
