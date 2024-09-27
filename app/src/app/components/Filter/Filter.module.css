@@ -68,9 +68,27 @@
   overflow-y: auto;
   gap: 28px;
   scrollbar-width: thin;
-  scrollbar-color: #FFFFFF #4B4949;
+  scrollbar-color: #ffffff #4b4949;
   padding-right: 24px;
   border-radius: 10px;
+}
+
+.filterBlockList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filterBlockList::-webkit-scrollbar-track {
+  color: #4b4949;
+}
+
+.filterBlockList::-webkit-scrollbar-thumb {
+  width: 4px;
+height: 65px;
+left: 176px;
+gap: 0px;
+border-radius: 40px 0px 0px 0px;
+opacity: 0px;
+color: white;
 }
 
 .filterBlockListBtn {
@@ -101,4 +119,3 @@
 .genreFilterBlock {
   position: relative;
 }
-
