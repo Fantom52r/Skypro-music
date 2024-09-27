@@ -67,6 +67,10 @@
   max-height: 237px;
   overflow-y: auto;
   gap: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: #FFFFFF #4B4949;
+  padding-right: 24px;
+  border-radius: 10px;
 }
 
 .filterBlockListBtn {
