@@ -55,7 +55,7 @@
   position: absolute;
   top: 50px;
   width: 248px;
-  height: 305px;
+  max-height: 305px;
   border-radius: 12px;
   padding: 34px;
   background: #313131;
@@ -64,8 +64,8 @@
 .filterBlockList {
   display: flex;
   flex-direction: column;
-  height: 237px;
-  overflow-y: scroll;
+  max-height: 237px;
+  overflow-y: auto;
   gap: 28px;
 }
 
@@ -86,9 +86,8 @@
 }
 
 .activeFilterButton {
-color: #ad61ff;
-border: 1px solid #ad61ff;
-
+  color: #ad61ff;
+  border: 1px solid #ad61ff;
 }
 
 .dateFilterBlock {
@@ -96,5 +95,6 @@ border: 1px solid #ad61ff;
 }
 
 .genreFilterBlock {
-position: relative;
+  position: relative;
 }
+

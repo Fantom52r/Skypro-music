@@ -33,7 +33,7 @@ const [filterBy,setFilterBy]= useState ([])
     setIsShowList(newObj);
   };
   return (
-    <div className={styles.centerBlockFilter}>
+    <div className={styles.centerBlockFilter}> 
       <div className={styles.filterTitle}>Искать по:</div>
       <div className={styles.authorFilterBlock}>
         <button

@@ -5,9 +5,9 @@ import React, { useEffect,useState } from "react";
 import Search from "../Search/Search";
 import Filter from "../Filter/Filter";
 import TrackList from "../TrackList/TrackList";
+import { getData } from "../../../API/TrackApi";
+import { TrackType } from "../../../types";
 
-const URL =
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/";
 
 const UNIQ_FILTERS: Filters = {
   AUTORS: [],
@@ -23,7 +23,7 @@ interface Filters {
 
 const CenterBlock = () => {
 
-  const [trackList, setTrackList] = useState([]);
+  const [trackList, setTrackList] = useState<TrackType[]>([]);
   const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
 
   const getUniqFilters = (res) => {
@@ -58,18 +58,12 @@ const CenterBlock = () => {
   };
 
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await fetch(URL)
-          .then((res) => res.json())
-          .then((res) => res.data);
-        setTrackList(response);
-        getUniqFilters(response);
-      } catch (error) {
-        alert("Произошла ошибка " + error);
-      }
+    const getDataTracks = async () => {
+const response:TrackType[] = await getData()
+setTrackList(response)
+getUniqFilters(response)
     };
-    getData();
+    getDataTracks();
   }, []);
 
   return (
