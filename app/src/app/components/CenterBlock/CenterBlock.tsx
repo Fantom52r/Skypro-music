@@ -32,7 +32,9 @@ const CenterBlock = () => {
     const uniqAuthors = {};
 
     res.forEach((track) => {
+      if (track.author !=="-" ) {
       uniqAuthors[track.author] = true;
+      }
     });
     const listAuthors = Object.keys(uniqAuthors);
 
