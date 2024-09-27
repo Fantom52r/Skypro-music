@@ -2,29 +2,21 @@
 import React, { useEffect, useState } from "react";
 import styles from "./TrackList.module.css";
 
-const URL =
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/";
-const TrackList = () => {
-  const [trackList, setTrackList] = useState([]);
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const response = await fetch(URL)
-          .then((res) => res.json())
-          .then((res) => setTrackList(res.data));
-      } catch (error) {
-        alert("Произошла ошибка " + error);
-      }
-    };
-    getData();
-  }, []);
 
-  const timeFormat = digit => {
+
+const TrackList = ({trackList}) => {
+
+
+
+  const timeFormat = (digit) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
-    return [minutes < 10 ? "0" + minutes : minutes, ".", seconds < 10 ? "0" + seconds : seconds];
+    return [
+      minutes < 10 ? "0" + minutes : minutes,
+      ":",
+      seconds < 10 ? "0" + seconds : seconds,
+    ];
   };
-  console.log(trackList);
   return (
     <div className={styles.contentPlaylist}>
       {trackList.map((track) => (
@@ -56,7 +48,9 @@ const TrackList = () => {
               <svg className={styles.trackTimeSvg}>
                 <use xlinkHref="img/icon/sprite.svg#icon-like"></use>
               </svg>
-              <span className={styles.trackTimeText}>{timeFormat(track.duration_in_seconds)}</span>
+              <span className={styles.trackTimeText}>
+                {timeFormat(track.duration_in_seconds)}
+              </span>
             </div>
           </div>
         </div>

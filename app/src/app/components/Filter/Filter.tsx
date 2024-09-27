@@ -1,21 +1,36 @@
-import React from 'react'
-import styles from "./Filter.module.css"
+"use client";
+import React, { useState } from "react";
+import styles from "./Filter.module.css";
 
-const Filter = () => {
+const SHOWN_FILTER = {
+  author: false,
+  date: false,
+  genre: false,
+};
+
+const Filter = ({uniqFilters}) => {
+  const [isShowList, setIsShowList] = useState(SHOWN_FILTER);
+  const [filterByAuthors,setFilterByAuthors] = useState([]);
+console.log(uniqFilters)
   return (
-    <div className={styles.centerblockFilter}>
-    <div className={styles.filterTitle}>Искать по:</div>
-    <div className={`${styles.filterButton} ${styles.btnText}`}>
-      исполнителю
+    <div className={styles.centerBlockFilter}>
+      <div className={styles.filterTitle}>Искать по:</div>
+      <div className={`${styles.filterButton} ${styles.btnText}`}>
+        исполнителю
+      </div>
+      {
+isShowList.author && <div>
+  <ul>
+    {}
+  </ul>
+</div>
+      }
+      <div className={`${styles.filterButton} ${styles.btnText}`}>
+        году выпуска
+      </div>
+      <div className={`${styles.filterButton} ${styles.btnText}`}>жанру</div>
     </div>
-    <div className={`${styles.filterButton} ${styles.btnText}`}>
-      году выпуска
-    </div>
-    <div className={`${styles.filterButton} ${styles.btnText}`}>
-      жанру
-    </div>
-  </div>
-  )
-}
+  );
+};
 
-export default Filter
+export default Filter;
