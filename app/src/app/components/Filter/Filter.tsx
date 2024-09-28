@@ -44,7 +44,6 @@ const Filter: React.FC<FiltersProps> = ({ uniqFilters }) => {
   const filterRef = useRef(null);
   useEffect(() => {
     const handleClickOutSide = (event) => {
-      console.log(event);
       if (filterRef.current && !filterRef.current.contains(event.target)) {
         setIsShowList(SHOWN_FILTER);
       }

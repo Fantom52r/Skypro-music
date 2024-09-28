@@ -74,6 +74,8 @@
 
   .playerBtnPlay {
     margin-right: 23px;
+    border: none;
+    background: transparent;
   }
 
   .playerBtnPlaySvg {
@@ -96,6 +98,8 @@
 
   .playerBtnRepeat {
     margin-right: 24px;
+    border: none;
+    background: transparent;
   }
 
   .playerBtnRepeatSvg {
@@ -282,4 +286,62 @@
 
 .volumeProgressLine {
   width: 109px;
+}
+
+/* ТУТ СТИЛИ ДЛЯ  ДОРОЖКИ ПРОГРЕСССА */
+.styledProgressInput {
+  --progress-height: 8px;
+  --progress-color: #b672ff;
+  --progress-bg-color: #2e2e2e;
+
+  margin: 0;
+  width: 100%;
+  height: var(--progress-height);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+  position: relative;
+  transition: height 0.2s;
+
+  background: linear-gradient(to right, var(--progress-color) var(--value), var(--progress-bg-color) var(--value));
+}
+
+.styledProgressInput:hover {
+  --progress-height: 24px;
+}
+
+/* Стили для WebKit браузеров */
+.styledProgressInput::-webkit-slider-runnable-track {
+  height: var(--progress-height);
+  background: var(--progress-bg-color);
+}
+
+.styledProgressInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--progress-color);
+}
+
+/* Стили для Firefox */
+.styledProgressInput::-moz-range-track {
+  background: var(--progress-bg-color);
+  height: var(--progress-height);
+}
+
+.styledProgressInput::-moz-range-thumb {
+  border: none;
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  background: var(--progress-color);
+}
+
+.playTime {
+  position: absolute;
+  right: 10px;
+  top: 20px;
 }

@@ -6,9 +6,9 @@ export type TrackType = {
   logo?: unknown;
   name: string;
   release_date: string;
-  staredUser: string;
+  staredUser: number[];
   track_file: string;
-  id: number;
+  _id: number;
 };
 
 
