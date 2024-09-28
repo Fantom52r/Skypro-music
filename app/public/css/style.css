@@ -14,7 +14,7 @@
 a,
 a:visited {
   text-decoration: none;
-  font-family: "Montserrat", sans-serif;
+  font-family: "StratosSkyeng";
   cursor: pointer;
 }
 
@@ -31,7 +31,7 @@ html,
 body {
   width: 100%;
   height: 100%;
-  font-family: "Montserrat", sans-serif;
+  font-family: "StratosSkyeng";
   color: #ffffff;
 }
 

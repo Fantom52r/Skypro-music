@@ -26,7 +26,7 @@ const CenterBlock = () => {
   const [trackList, setTrackList] = useState<TrackType[]>([]);
   const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
 
-  const getUniqFilters = (res) => {
+  const getUniqFilters = (res:TrackType[]) => {
     const uniqGenres = {};
     const uniqDates = {};
     const uniqAuthors = {};
