@@ -2,15 +2,20 @@
 import React, { useEffect, useState } from "react";
 import styles from "./TrackList.module.css";
 import { TrackType } from "../../../types";
+import { setCurrentTrack } from "../../../store/features/trackSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
 
-const TrackList = ({
-  trackList,
-  currentTrack,
-  setCurrentTrack,
-  togglePlay,
-  isPlaying,
-  setIsPlaying,
-}) => {
+const TrackList = ({ togglePlay,}) => {
+  const trackList: TrackType[] = useSelector(
+    (state: RootState) => state.tracks.trackList
+  );
+
+  const currentTrack: TrackType = useSelector(
+    (state: RootState) => state.tracks.currentTrack
+  );
+  const player=useSelector((state:RootState)=>state.player)
+  const dispatch = useDispatch();
   const timeFormat = (digit) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
@@ -21,14 +26,14 @@ const TrackList = ({
     ];
   };
 
-  const handleClickTrack =  (track: TrackType) => {
-    setCurrentTrack(track);
+  const handleClickTrack = (track: TrackType) => {
+    dispatch(setCurrentTrack(track));
     togglePlay(track);
   };
 
   return (
     <div className={styles.contentPlaylist}>
-      {trackList.map((track:TrackType) => (
+      {trackList?.map((track: TrackType) => (
         <div key={track._id} className={styles.playlistItem}>
           <div className={styles.playlistTrack}>
             <div className={styles.trackTitle}>
@@ -36,10 +41,10 @@ const TrackList = ({
                 onClick={() => handleClickTrack(track)}
                 className={styles.trackTitleImage}
               >
-                {track._id === currentTrack._id ? (
+                {track._id === currentTrack?._id ? (
                   <div
                     className={
-                      isPlaying ? styles.pulsingCircle : styles.staticCircle
+                      player.isPlaying ? styles.pulsingCircle : styles.staticCircle
                     }
                   ></div>
                 ) : (

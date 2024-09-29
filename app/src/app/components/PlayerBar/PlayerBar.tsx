@@ -4,25 +4,25 @@ import React, { useState } from "react";
 import styles from "./PlayerBar.module.css";
 import Image from "next/image";
 import { TrackType } from "../../../types";
-
-const PlayerBar = ({
-  currentTrack,
-  setCurrentTrack,
-  isPlaying,
-  setIsPlaying,
-  togglePlay,
-  audioRef,
-  isLoop,
-  setIsLoop,
-  volume,
-  setVolume,
-  currentTime,
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
+import {
   setCurrentTime,
-  trackList,
-  isShuffle,
-  setIsShuffle,
-}) => {
+  setVolume,
+  toggleLoop,
+  toggleShuffle,
+} from "../../../store/features/playerSlice";
+import { setCurrentTrack } from "../../../store/features/trackSlice";
+
+const PlayerBar = ({ togglePlay, audioRef }) => {
+  const player = useSelector((state: RootState) => state.player);
+  const trackList = useSelector((state: RootState) => state.tracks.trackList);
+  const currentTrack = useSelector(
+    (state: RootState) => state.tracks.currentTrack
+  );
   const duration = audioRef.current?.duration || 0;
+
+  const dispatch = useDispatch();
 
   const timeFormat = (digit) => {
     let minutes = Math.floor(digit / 60);
@@ -33,17 +33,18 @@ const PlayerBar = ({
       seconds < 10 ? "0" + seconds.toFixed(0) : seconds.toFixed(0),
     ];
   };
-  const randomTrack = ()=>{
-    const max = trackList.length - 1
-    const randomIndex = Math.floor(Math.random()*max)
-    return randomIndex
-  }
+  const max = trackList.length - 1;
+
+  const randomTrack = () => {
+    const randomIndex = Math.floor(Math.random() * max);
+    return randomIndex;
+  };
 
   const handleClickChangeTrack = (direction: boolean) => {
-    if (isShuffle) {
-      const newIndexTrack = randomTrack()
-      setCurrentTrack(trackList[newIndexTrack])
-      return
+    if (player.isShuffle) {
+      const newIndexTrack = randomTrack();
+      dispatch(setCurrentTrack(trackList[newIndexTrack]));
+      return;
     }
     if (direction) {
       if (trackList[trackList.length - 1]._id !== currentTrack._id) {
@@ -51,7 +52,7 @@ const PlayerBar = ({
           trackList.findIndex(
             (track: TrackType) => track._id === currentTrack._id
           ) + 1;
-        setCurrentTrack(trackList[index]);
+        dispatch(setCurrentTrack(trackList[index]));
       }
     } else {
       if (trackList[0]._id !== currentTrack._id) {
@@ -59,7 +60,7 @@ const PlayerBar = ({
           trackList.findIndex(
             (track: TrackType) => track._id === currentTrack._id
           ) - 1;
-        setCurrentTrack(trackList[index]);
+        dispatch(setCurrentTrack(trackList[index]));
       }
     }
   };
@@ -71,7 +72,7 @@ const PlayerBar = ({
         type="range"
         min="0"
         max={duration}
-        value={currentTime}
+        value={player.currentTime}
         step={0.01}
         onChange={(e) => (audioRef.current.currentTime = e.target.value)}
       />
@@ -89,7 +90,7 @@ const PlayerBar = ({
               </button>
               <audio
                 onTimeUpdate={(e) =>
-                  setCurrentTime(e.currentTarget.currentTime)
+                  dispatch(setCurrentTime(+e.currentTarget.currentTime))
                 }
                 ref={audioRef}
                 src={currentTrack?.track_file}
@@ -98,7 +99,7 @@ const PlayerBar = ({
                 onClick={() => togglePlay(currentTrack)}
                 className={styles.playerBtnPlay}
               >
-                {isPlaying ? (
+                {player.isPlaying ? (
                   <svg
                     className={styles.playerBtnPlaySvg}
                     width="15"
@@ -125,10 +126,10 @@ const PlayerBar = ({
                 </svg>
               </button>
               <button
-                onClick={() => setIsLoop(!isLoop)}
+                onClick={() => dispatch(toggleLoop())}
                 className={styles.playerBtnRepeat}
               >
-                {isLoop ? (
+                {player.isLoop ? (
                   <svg
                     className={`${styles.playerBtnRepeatSvg} ${styles.playerBtnRepeatSvgActive}`}
                   >
@@ -141,10 +142,10 @@ const PlayerBar = ({
                 )}
               </button>
               <button
-                onClick={() => setIsShuffle(!isShuffle)}
+                onClick={() => dispatch(toggleShuffle())}
                 className={styles.playerBtnShuffle}
               >
-                {isShuffle ? (
+                {player.isShuffle ? (
                   <svg
                     className={`${styles.playerBtnShuffleSvg} ${styles.playerBtnRepeatSvgActive}`}
                   >
@@ -204,8 +205,8 @@ const PlayerBar = ({
                   min="0"
                   max="1"
                   step="0.01"
-                  value={volume}
-                  onChange={(e) => setVolume(e.target.value)}
+                  value={player.volume}
+                  onChange={(e) => dispatch(setVolume(+e.target.value))}
                 />
               </div>
             </div>
@@ -217,7 +218,7 @@ const PlayerBar = ({
         {audioRef.current?.currentTime
           ? timeFormat(audioRef.current?.currentTime)
           : "0:00"}{" "}
-        / {timeFormat(currentTrack.duration_in_seconds)}
+        / {timeFormat(currentTrack?.duration_in_seconds)}
       </p>
     </div>
   );

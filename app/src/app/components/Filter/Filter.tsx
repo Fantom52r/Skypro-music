@@ -2,29 +2,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./Filter.module.css";
 import { TrackType } from "../../../types";
-
-const SHOWN_FILTER = {
-  author: false,
-  date: false,
-  genre: false,
-};
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
 interface IsOpen {
   author: boolean;
   date: boolean;
   genre: boolean;
 }
-
-interface Filters {
-  AUTORS: string[];
-  DATES: string[];
-  GENRES: string[];
-}
-
-interface FiltersProps {
-  uniqFilters: Filters;
-}
-const Filter: React.FC<FiltersProps> = ({ uniqFilters }) => {
-  const [isShowList, setIsShowList] = useState(SHOWN_FILTER);
+const Filter: React.FC = () => {
+  const uniqFilters = useSelector((state: RootState) => state.filters);
+  const [isShowList, setIsShowList] = useState({
+    author: false,
+    date: false,
+    genre: false,
+  });
 
   const handleClickFilter = (selectedKey: keyof IsOpen) => {
     const newObj: IsOpen = {
@@ -45,7 +36,11 @@ const Filter: React.FC<FiltersProps> = ({ uniqFilters }) => {
   useEffect(() => {
     const handleClickOutSide = (event) => {
       if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setIsShowList(SHOWN_FILTER);
+        setIsShowList({
+          author: false,
+          date: false,
+          genre: false,
+        });
       }
     };
     document.addEventListener("click", handleClickOutSide);

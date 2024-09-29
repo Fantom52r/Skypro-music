@@ -7,57 +7,30 @@ import PlayerBar from "../components/PlayerBar/PlayerBar";
 import { useState, useRef, useEffect } from "react";
 import { TrackType } from "../../types";
 import { getData } from "../../API/TrackApi";
-
-const TRACK = {
-  _id: 1000,
-  name: "Essence2",
-  author: "MED",
-  release_date: "1920-05-03",
-  genre: ["Электронная музыка"],
-  duration_in_seconds: 205,
-  album: "Essence2",
-  logo: {
-    type: "Buffer",
-    data: [],
-  },
-  track_file:
-    "https://webdev-music-003b5b991590.herokuapp.com/media/music_files/MED_-_Essence2.mp3",
-  staredUser: [],
-};
-
-const UNIQ_FILTERS: Filters = {
-  AUTORS: [],
-  DATES: [],
-  GENRES: [],
-};
-
-interface Filters {
-  AUTORS: string[];
-  DATES: string[];
-  GENRES: string[];
-}
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { setPlay } from "../../store/features/playerSlice";
+import { setFilters } from "../../store/features/filterSlice";
+import { setCurrentTrack, setTracks } from "../../store/features/trackSlice";
 
 export default function Home() {
-  const [trackList, setTrackList] = useState<TrackType[]>([]);
-  const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
-  const [isShuffle,setIsShuffle] = useState(false)
-
-  const [currentTrack, setCurrentTrack] = useState<TrackType>(TRACK);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoop, setIsLoop] = useState(false);
-  const [volume, setVolume] = useState(0.5); // Начальная громкость установлена на 50%
-  const [currentTime, setCurrentTime] = useState(0);
+  const player = useSelector((state: RootState) => state.player);
+  // const trackList = useSelector((state: RootState) => state.tracks.trackList);
+  const currentTrack = useSelector(
+    (state: RootState) => state.tracks.currentTrack
+  );
+  const dispatch = useDispatch();
 
   const audioRef = useRef(null);
 
-  const togglePlay = (track: TrackType = TRACK) => {
+  const togglePlay = (track: TrackType = null) => {
     const audio = audioRef.current;
-    if (isPlaying && track.name === currentTrack.name) {
+    if (player.isPlaying && track.name === currentTrack.name) {
       audio.pause();
-      setIsPlaying(false);
+      dispatch(setPlay(false));
     } else {
       audio.play();
-      setIsPlaying(true);
+      dispatch(setPlay(true));
     }
   };
 
@@ -85,17 +58,20 @@ export default function Home() {
     });
     const listGenres = Object.keys(uniqGenres);
 
-    setUniqFilters({
-      AUTORS: listAuthors,
-      DATES: listDates,
-      GENRES: listGenres,
-    });
+    dispatch(
+      setFilters({
+        AUTORS: listAuthors,
+        DATES: listDates,
+        GENRES: listGenres,
+      })
+    );
   };
 
   useEffect(() => {
     const getDataTracks = async () => {
       const response: TrackType[] = await getData();
-      setTrackList(response);
+      dispatch(setTracks(response));
+      dispatch(setCurrentTrack(response[0]))
       getUniqFilters(response);
     };
     getDataTracks();
@@ -103,17 +79,17 @@ export default function Home() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio && isPlaying) {
+    if (audio && player.isPlaying) {
       audio.play();
     }
-    audio.loop = isLoop;
-  }, [currentTrack, isPlaying, isLoop]);
+    audio.loop = player.isLoop;
+  }, [currentTrack, player.isPlaying, player.isLoop]);
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      audioRef.current.volume = player.volume;
     }
-  }, [volume]);
+  }, [player.volume]);
 
   return (
     <>
@@ -121,36 +97,10 @@ export default function Home() {
         <div className="container">
           <main className="main">
             <Header />
-            <CenterBlock
-              currentTrack={currentTrack}
-              setCurrentTrack={setCurrentTrack}
-              togglePlay={togglePlay}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              uniqFilters={uniqFilters}
-              trackList={trackList}
-              setTrackList={setTrackList}
-              setUniqFilters={setUniqFilters}
-            />
+            <CenterBlock togglePlay={togglePlay} />
             <SideBar />
           </main>
-          <PlayerBar
-            currentTrack={currentTrack}
-            setCurrentTrack={setCurrentTrack}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            togglePlay={togglePlay}
-            audioRef={audioRef}
-            isLoop={isLoop}
-            setIsLoop={setIsLoop}
-            volume={volume}
-            setVolume={setVolume}
-            currentTime={currentTime}
-            setCurrentTime={setCurrentTime}
-            trackList={trackList}
-            isShuffle={isShuffle}
-            setIsShuffle={setIsShuffle}
-          />
+          <PlayerBar togglePlay={togglePlay} audioRef={audioRef} />
           <footer className="footer"></footer>
         </div>
       </div>

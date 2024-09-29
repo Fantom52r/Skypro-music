@@ -8,34 +8,12 @@ import TrackList from "../TrackList/TrackList";
 import { getData } from "../../../API/TrackApi";
 import { TrackType } from "../../../types";
 
-const UNIQ_FILTERS: Filters = {
-  AUTORS: [],
-  DATES: [],
-  GENRES: [],
-};
-
-interface Filters {
-  AUTORS: string[];
-  DATES: string[];
-  GENRES: string[];
-}
-
-const CenterBlock = ({
-  currentTrack,
-  setCurrentTrack,
-  togglePlay,
-  isPlaying,
-  setIsPlaying,
-  uniqFilters,
-  setUniqFilters,
-  trackList,
-  setTrackList,
-}) => {
+const CenterBlock = ({ togglePlay }) => {
   return (
     <div className="main__centerblock centerblock">
       <Search />
       <h2 className="centerblock__h2">Треки</h2>
-      <Filter uniqFilters={uniqFilters} />
+      <Filter />
       <div className="centerblock__content playlist-content">
         <div className="content__title playlist-title">
           <div className="playlist-title__col col01">Трек</div>
@@ -47,14 +25,7 @@ const CenterBlock = ({
             </svg>
           </div>
         </div>
-        <TrackList
-          trackList={trackList}
-          currentTrack={currentTrack}
-          setCurrentTrack={setCurrentTrack}
-          togglePlay={togglePlay}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-        />
+        <TrackList togglePlay={togglePlay} />
       </div>
     </div>
   );
