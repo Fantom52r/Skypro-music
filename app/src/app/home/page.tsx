@@ -75,7 +75,7 @@ export default function Home() {
       getUniqFilters(response);
     };
     getDataTracks();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const audio = audioRef.current;

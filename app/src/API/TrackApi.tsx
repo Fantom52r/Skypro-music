@@ -11,13 +11,16 @@ export const getData = async () => {
     console.error("Произошла ошибка " + error);
   }
 };
-export const getTrack = async (id) => {
-  try {
-    const response = await fetch(`${URL}/${id}`)
-      .then((res) => res.json())
-      .then((res) => res.data);
-    return response;
-  } catch (error) {
-    console.error("Произошла ошибка " + error);
-  }
-};
+
+// Сказано Убрать , но я  закоментил на всякий случай!
+
+// export const getTrack = async (id) => {
+//   try {
+//     const response = await fetch(`${URL}/${id}`)
+//       .then((res) => res.json())
+//       .then((res) => res.data);
+//     return response;
+//   } catch (error) {
+//     console.error("Произошла ошибка " + error);
+//   }
+// };

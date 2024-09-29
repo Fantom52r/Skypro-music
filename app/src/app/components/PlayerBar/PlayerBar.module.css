@@ -116,8 +116,6 @@
   stroke: #acacac;
 }
 
-
-
 .playerBtnShuffle {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -126,7 +124,7 @@
   -ms-flex-align: center;
   align-items: center;
   border: none;
-  background:transparent;
+  background: transparent;
 }
 
 .playerBtnShuffleSvg {
@@ -134,7 +132,6 @@
   height: 12px;
   fill: transparent;
   stroke: #696969;
-
 }
 
 .playerBtnShuffleSvg:hover {
@@ -304,7 +301,6 @@
   width: 109px;
 }
 
-/* ТУТ СТИЛИ ДЛЯ  ДОРОЖКИ ПРОГРЕСССА */
 .styledProgressInput {
   --progress-height: 8px;
   --progress-color: #b672ff;
@@ -331,7 +327,6 @@
   --progress-height: 24px;
 }
 
-/* Стили для WebKit браузеров */
 .styledProgressInput::-webkit-slider-runnable-track {
   height: var(--progress-height);
   background: var(--progress-bg-color);
@@ -346,7 +341,6 @@
   background: var(--progress-color);
 }
 
-/* Стили для Firefox */
 .styledProgressInput::-moz-range-track {
   background: var(--progress-bg-color);
   height: var(--progress-height);
@@ -368,4 +362,108 @@
 
 .playerBtnRepeatSvgActive {
   stroke: #ffffff;
+}
+
+.styledProgressInput {
+  --progress-height: 8px;
+  --progress-color: #b672ff;
+  --progress-bg-color: #2e2e2e;
+  --value: 0%;
+
+  margin: 0;
+  width: 100%;
+  height: var(--progress-height);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+  position: relative;
+  transition: height 0.2s;
+
+  background: linear-gradient(
+    to right,
+    var(--progress-color) var(--value),
+    var(--progress-bg-color) var(--value)
+  );
+}
+
+.styledProgressInput:hover {
+  --progress-height: 24px;
+}
+
+.styledProgressInput::-webkit-slider-thumb,
+.styledProgressInput::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--progress-color);
+}
+
+.styledProgressInput {
+  --progress-height: 8px;
+  --progress-color: #b672ff;
+  --progress-bg-color: #2e2e2e;
+  --value: 0%;
+
+  margin: 0;
+  width: 100%;
+  height: var(--progress-height);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+  position: relative;
+  transition: height 0.2s;
+
+  background: linear-gradient(
+    to right,
+    var(--progress-color) var(--value),
+    var(--progress-bg-color) var(--value)
+  );
+}
+
+.styledProgressInput::-webkit-slider-runnable-track {
+  height: var(--progress-height);
+  background: transparent;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    var(--progress-color) var(--value),
+    var(--progress-bg-color) var(--value)
+  );
+}
+
+/* Thumb */
+.styledProgressInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--progress-color);
+  margin-top: -5px;
+}
+
+/* Для Firefox */
+.styledProgressInput::-moz-range-track {
+  height: var(--progress-height);
+  background: transparent;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    var(--progress-color) var(--value),
+    var(--progress-bg-color) var(--value)
+  );
+}
+
+.styledProgressInput::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--progress-color);
+  margin-top: -5px;
 }

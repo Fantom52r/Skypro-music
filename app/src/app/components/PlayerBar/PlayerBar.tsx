@@ -1,69 +1,80 @@
-//  ДоДелать
-
-import React, { useState } from "react";
-import styles from "./PlayerBar.module.css";
-import Image from "next/image";
-import { TrackType } from "../../../types";
+"use client";
+import React, { useCallback, RefObject, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import {
   setCurrentTime,
-  setVolume,
   toggleLoop,
   toggleShuffle,
+  setVolume,
+  setPlay,
 } from "../../../store/features/playerSlice";
 import { setCurrentTrack } from "../../../store/features/trackSlice";
+import { TrackType } from "../../../types";
+import styles from "./PlayerBar.module.css";
 
-const PlayerBar = ({ togglePlay, audioRef }) => {
+interface PlayerBarProps {
+  togglePlay: (track: TrackType) => void;
+  audioRef: RefObject<HTMLAudioElement>;
+}
+
+const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
   const player = useSelector((state: RootState) => state.player);
   const trackList = useSelector((state: RootState) => state.tracks.trackList);
   const currentTrack = useSelector(
     (state: RootState) => state.tracks.currentTrack
   );
+  const dispatch = useDispatch();
   const duration = audioRef.current?.duration || 0;
 
-  const dispatch = useDispatch();
+  const [progress, setProgress] = useState(0);
 
-  const timeFormat = (digit) => {
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const updateProgress = () => {
+        setProgress((audio.currentTime / audio.duration) * 100);
+      };
+
+      audio.addEventListener("timeupdate", updateProgress);
+
+      return () => {
+        audio.removeEventListener("timeupdate", updateProgress);
+      };
+    }
+  }, [audioRef]);
+
+  const timeFormat = useCallback((digit: number) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
-    return [
-      minutes < 10 ? "0" + minutes.toFixed(0) : minutes.toFixed(0),
-      ":",
-      seconds < 10 ? "0" + seconds.toFixed(0) : seconds.toFixed(0),
-    ];
-  };
-  const max = trackList.length - 1;
+    return `${minutes < 10 ? "0" + Math.round(minutes) : Math.round(minutes)}:${
+      seconds < 10 ? "0" + Math.round(seconds) : Math.round(seconds)
+    }`;
+  }, []);
 
-  const randomTrack = () => {
+  const randomTrack = useCallback(() => {
+    const max = trackList.length - 1;
     const randomIndex = Math.floor(Math.random() * max);
-    return randomIndex;
-  };
+    return trackList[randomIndex];
+  }, [trackList]);
 
-  const handleClickChangeTrack = (direction: boolean) => {
-    if (player.isShuffle) {
-      const newIndexTrack = randomTrack();
-      dispatch(setCurrentTrack(trackList[newIndexTrack]));
-      return;
-    }
-    if (direction) {
-      if (trackList[trackList.length - 1]._id !== currentTrack._id) {
-        const index =
-          trackList.findIndex(
-            (track: TrackType) => track._id === currentTrack._id
-          ) + 1;
-        dispatch(setCurrentTrack(trackList[index]));
+  const handleClickChangeTrack = useCallback(
+    (direction: boolean) => {
+      if (player.isShuffle) {
+        dispatch(setCurrentTrack(randomTrack()));
+        return;
       }
-    } else {
-      if (trackList[0]._id !== currentTrack._id) {
-        const index =
-          trackList.findIndex(
-            (track: TrackType) => track._id === currentTrack._id
-          ) - 1;
-        dispatch(setCurrentTrack(trackList[index]));
+      const currentIndex = trackList.findIndex(
+        (track) => track._id === currentTrack._id
+      );
+      const newIndex = direction ? currentIndex + 1 : currentIndex - 1;
+
+      if (newIndex >= 0 && newIndex < trackList.length) {
+        dispatch(setCurrentTrack(trackList[newIndex]));
       }
-    }
-  };
+    },
+    [dispatch, trackList, currentTrack, player.isShuffle, randomTrack]
+  );
 
   return (
     <div className={styles.bar}>
@@ -71,10 +82,18 @@ const PlayerBar = ({ togglePlay, audioRef }) => {
         className={styles.styledProgressInput}
         type="range"
         min="0"
-        max={duration}
-        value={player.currentTime}
+        max={audioRef.current?.duration || 100}
+        value={audioRef.current?.currentTime || 0}
         step={0.01}
-        onChange={(e) => (audioRef.current.currentTime = e.target.value)}
+        onChange={(e) => {
+          audioRef.current.currentTime = parseFloat(e.target.value);
+          setProgress(
+            (parseFloat(e.target.value) / audioRef.current.duration) * 100
+          );
+        }}
+        style={{
+          background: `linear-gradient(to right, #b672ff ${progress}%, #2e2e2e ${progress}%)`,
+        }}
       />
       <div className={styles.barContent}>
         <div className={styles.barPlayerBlock}>
@@ -90,7 +109,7 @@ const PlayerBar = ({ togglePlay, audioRef }) => {
               </button>
               <audio
                 onTimeUpdate={(e) =>
-                  dispatch(setCurrentTime(+e.currentTarget.currentTime))
+                  dispatch(setCurrentTime(e.currentTarget.currentTime))
                 }
                 ref={audioRef}
                 src={currentTrack?.track_file}
@@ -106,7 +125,6 @@ const PlayerBar = ({ togglePlay, audioRef }) => {
                     height="19"
                     viewBox="0 0 15 19"
                     fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <rect width="5" height="19" fill="#D9D9D9" />
                     <rect x="10" width="5" height="19" fill="#D9D9D9" />
@@ -167,13 +185,13 @@ const PlayerBar = ({ togglePlay, audioRef }) => {
                   </svg>
                 </div>
                 <div className={styles.trackPlayAuthor}>
-                  <a className={styles.trackPlayAuthorLink} href="http://">
-                    {currentTrack ? currentTrack.name : ""}
+                  <a className={styles.trackPlayAuthorLink} href="#">
+                    {currentTrack?.name || ""}
                   </a>
                 </div>
                 <div className={styles.trackPlayAlbum}>
-                  <a className={styles.trackPlayAlbumLink} href="http://">
-                    {currentTrack ? currentTrack.author : ""}
+                  <a className={styles.trackPlayAlbumLink} href="#">
+                    {currentTrack?.author || ""}
                   </a>
                 </div>
               </div>
@@ -206,14 +224,15 @@ const PlayerBar = ({ togglePlay, audioRef }) => {
                   max="1"
                   step="0.01"
                   value={player.volume}
-                  onChange={(e) => dispatch(setVolume(+e.target.value))}
+                  onChange={(e) =>
+                    dispatch(setVolume(parseFloat(e.target.value)))
+                  }
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
-
       <p className={styles.playTime}>
         {audioRef.current?.currentTime
           ? timeFormat(audioRef.current?.currentTime)
