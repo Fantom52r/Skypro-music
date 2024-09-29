@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import styles from "./PlayerBar.module.css";
 import Image from "next/image";
+import { TrackType } from "../../../types";
 
 const PlayerBar = ({
   currentTrack,
@@ -17,8 +18,12 @@ const PlayerBar = ({
   setVolume,
   currentTime,
   setCurrentTime,
+  trackList,
+  isShuffle,
+  setIsShuffle,
 }) => {
   const duration = audioRef.current?.duration || 0;
+
   const timeFormat = (digit) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
@@ -28,6 +33,37 @@ const PlayerBar = ({
       seconds < 10 ? "0" + seconds.toFixed(0) : seconds.toFixed(0),
     ];
   };
+  const randomTrack = ()=>{
+    const max = trackList.length - 1
+    const randomIndex = Math.floor(Math.random()*max)
+    return randomIndex
+  }
+
+  const handleClickChangeTrack = (direction: boolean) => {
+    if (isShuffle) {
+      const newIndexTrack = randomTrack()
+      setCurrentTrack(trackList[newIndexTrack])
+      return
+    }
+    if (direction) {
+      if (trackList[trackList.length - 1]._id !== currentTrack._id) {
+        const index =
+          trackList.findIndex(
+            (track: TrackType) => track._id === currentTrack._id
+          ) + 1;
+        setCurrentTrack(trackList[index]);
+      }
+    } else {
+      if (trackList[0]._id !== currentTrack._id) {
+        const index =
+          trackList.findIndex(
+            (track: TrackType) => track._id === currentTrack._id
+          ) - 1;
+        setCurrentTrack(trackList[index]);
+      }
+    }
+  };
+
   return (
     <div className={styles.bar}>
       <input
@@ -43,11 +79,14 @@ const PlayerBar = ({
         <div className={styles.barPlayerBlock}>
           <div className={styles.barPlayer}>
             <div className={styles.playerControls}>
-              <div onClick={() => alert("еще не реализовано")} className={styles.playerBtnPrev}>
+              <button
+                onClick={() => handleClickChangeTrack(false)}
+                className={styles.playerBtnPrev}
+              >
                 <svg className={styles.playerBtnPrevSvg}>
                   <use xlinkHref="img/icon/sprite.svg#icon-prev"></use>
                 </svg>
-              </div>
+              </button>
               <audio
                 onTimeUpdate={(e) =>
                   setCurrentTime(e.currentTarget.currentTime)
@@ -77,34 +116,46 @@ const PlayerBar = ({
                   </svg>
                 )}
               </button>
-              <div  onClick={() => alert("еще не реализовано")} className={styles.playerBtnNext}>
+              <button
+                onClick={() => handleClickChangeTrack(true)}
+                className={styles.playerBtnNext}
+              >
                 <svg className={styles.playerBtnNextSvg}>
                   <use xlinkHref="img/icon/sprite.svg#icon-next"></use>
                 </svg>
-              </div>
+              </button>
               <button
                 onClick={() => setIsLoop(!isLoop)}
                 className={styles.playerBtnRepeat}
               >
                 {isLoop ? (
-                  <Image
-                    className={styles.playerBtnRepeatSvg}
-                    src="/img/icon/repeatPng.png"
-                    alt="logo"
-                    height={16}
-                    width={12}
-                  />
+                  <svg
+                    className={`${styles.playerBtnRepeatSvg} ${styles.playerBtnRepeatSvgActive}`}
+                  >
+                    <use xlinkHref="img/icon/sprite.svg#icon-repeat"></use>
+                  </svg>
                 ) : (
                   <svg className={styles.playerBtnRepeatSvg}>
                     <use xlinkHref="img/icon/sprite.svg#icon-repeat"></use>
                   </svg>
                 )}
               </button>
-              <div  onClick={() => alert("еще не реализовано")} className={styles.playerBtnShuffle}>
-                <svg className={styles.playerBtnShuffleSvg}>
-                  <use xlinkHref="img/icon/sprite.svg#icon-shuffle"></use>
-                </svg>
-              </div>
+              <button
+                onClick={() => setIsShuffle(!isShuffle)}
+                className={styles.playerBtnShuffle}
+              >
+                {isShuffle ? (
+                  <svg
+                    className={`${styles.playerBtnShuffleSvg} ${styles.playerBtnRepeatSvgActive}`}
+                  >
+                    <use xlinkHref="img/icon/sprite.svg#icon-shuffle"></use>
+                  </svg>
+                ) : (
+                  <svg className={styles.playerBtnShuffleSvg}>
+                    <use xlinkHref="img/icon/sprite.svg#icon-shuffle"></use>
+                  </svg>
+                )}
+              </button>
             </div>
 
             <div className={styles.playerTrackPlay}>

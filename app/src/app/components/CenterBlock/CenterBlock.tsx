@@ -24,50 +24,13 @@ const CenterBlock = ({
   currentTrack,
   setCurrentTrack,
   togglePlay,
+  isPlaying,
+  setIsPlaying,
+  uniqFilters,
+  setUniqFilters,
+  trackList,
+  setTrackList,
 }) => {
-  const [trackList, setTrackList] = useState<TrackType[]>([]);
-  const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
-
-  const getUniqFilters = (res: TrackType[]) => {
-    const uniqGenres = {};
-    const uniqDates = {};
-    const uniqAuthors = {};
-
-    res.forEach((track) => {
-      if (track.author !== "-") {
-        uniqAuthors[track.author] = true;
-      }
-    });
-    const listAuthors = Object.keys(uniqAuthors);
-
-    res.forEach((track) => {
-      uniqDates[track.release_date.slice(0, 4)] = true;
-    });
-    const listDates = Object.keys(uniqDates);
-
-    res.forEach((track) => {
-      track.genre.forEach((genre) => {
-        uniqGenres[genre] = true;
-      });
-    });
-    const listGenres = Object.keys(uniqGenres);
-
-    setUniqFilters({
-      AUTORS: listAuthors,
-      DATES: listDates,
-      GENRES: listGenres,
-    });
-  };
-
-  useEffect(() => {
-    const getDataTracks = async () => {
-      const response: TrackType[] = await getData();
-      setTrackList(response);
-      getUniqFilters(response);
-    };
-    getDataTracks();
-  }, []);
-
   return (
     <div className="main__centerblock centerblock">
       <Search />
@@ -89,6 +52,8 @@ const CenterBlock = ({
           currentTrack={currentTrack}
           setCurrentTrack={setCurrentTrack}
           togglePlay={togglePlay}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
         />
       </div>
     </div>

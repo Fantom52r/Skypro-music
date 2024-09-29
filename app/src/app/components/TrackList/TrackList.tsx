@@ -1,10 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styles from "./TrackList.module.css";
-import { getTrack } from "../../../API/TrackApi";
 import { TrackType } from "../../../types";
 
-const TrackList = ({ trackList, currentTrack, setCurrentTrack,togglePlay }) => {
+const TrackList = ({
+  trackList,
+  currentTrack,
+  setCurrentTrack,
+  togglePlay,
+  isPlaying,
+  setIsPlaying,
+}) => {
   const timeFormat = (digit) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
@@ -15,26 +21,33 @@ const TrackList = ({ trackList, currentTrack, setCurrentTrack,togglePlay }) => {
     ];
   };
 
-const handleClickTrack = async (track:TrackType)=>{
-  setCurrentTrack(track)
-  togglePlay(track)
-  const res = await getTrack(track._id)
-}
+  const handleClickTrack =  (track: TrackType) => {
+    setCurrentTrack(track);
+    togglePlay(track);
+  };
 
   return (
     <div className={styles.contentPlaylist}>
-      {trackList.map((track) => (
+      {trackList.map((track:TrackType) => (
         <div key={track._id} className={styles.playlistItem}>
           <div className={styles.playlistTrack}>
             <div className={styles.trackTitle}>
-              <div
+              <button
                 onClick={() => handleClickTrack(track)}
                 className={styles.trackTitleImage}
               >
-                <svg className={styles.trackTitleSvg}>
-                  <use xlinkHref="img/icon/sprite.svg#icon-note"></use>
-                </svg>
-              </div>
+                {track._id === currentTrack._id ? (
+                  <div
+                    className={
+                      isPlaying ? styles.pulsingCircle : styles.staticCircle
+                    }
+                  ></div>
+                ) : (
+                  <svg className={styles.trackTitleSvg}>
+                    <use xlinkHref="img/icon/sprite.svg#icon-note"></use>
+                  </svg>
+                )}
+              </button>
               <div className="track__title-text">
                 <a className={styles.trackTitleLink} href="http://">
                   {track.name} <span className={styles.trackTitleSpan}></span>

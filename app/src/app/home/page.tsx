@@ -6,9 +6,10 @@ import SideBar from "../components/Sidebar/SideBar";
 import PlayerBar from "../components/PlayerBar/PlayerBar";
 import { useState, useRef, useEffect } from "react";
 import { TrackType } from "../../types";
+import { getData } from "../../API/TrackApi";
 
 const TRACK = {
-  _id: 32,
+  _id: 1000,
   name: "Essence2",
   author: "MED",
   release_date: "1920-05-03",
@@ -24,7 +25,23 @@ const TRACK = {
   staredUser: [],
 };
 
+const UNIQ_FILTERS: Filters = {
+  AUTORS: [],
+  DATES: [],
+  GENRES: [],
+};
+
+interface Filters {
+  AUTORS: string[];
+  DATES: string[];
+  GENRES: string[];
+}
+
 export default function Home() {
+  const [trackList, setTrackList] = useState<TrackType[]>([]);
+  const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
+  const [isShuffle,setIsShuffle] = useState(false)
+
   const [currentTrack, setCurrentTrack] = useState<TrackType>(TRACK);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoop, setIsLoop] = useState(false);
@@ -32,7 +49,6 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
 
   const audioRef = useRef(null);
-
 
   const togglePlay = (track: TrackType = TRACK) => {
     const audio = audioRef.current;
@@ -44,6 +60,46 @@ export default function Home() {
       setIsPlaying(true);
     }
   };
+
+  const getUniqFilters = (res: TrackType[]) => {
+    const uniqGenres = {};
+    const uniqDates = {};
+    const uniqAuthors = {};
+
+    res.forEach((track) => {
+      if (track.author !== "-") {
+        uniqAuthors[track.author] = true;
+      }
+    });
+    const listAuthors = Object.keys(uniqAuthors);
+
+    res.forEach((track) => {
+      uniqDates[track.release_date.slice(0, 4)] = true;
+    });
+    const listDates = Object.keys(uniqDates);
+
+    res.forEach((track) => {
+      track.genre.forEach((genre) => {
+        uniqGenres[genre] = true;
+      });
+    });
+    const listGenres = Object.keys(uniqGenres);
+
+    setUniqFilters({
+      AUTORS: listAuthors,
+      DATES: listDates,
+      GENRES: listGenres,
+    });
+  };
+
+  useEffect(() => {
+    const getDataTracks = async () => {
+      const response: TrackType[] = await getData();
+      setTrackList(response);
+      getUniqFilters(response);
+    };
+    getDataTracks();
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -69,6 +125,12 @@ export default function Home() {
               currentTrack={currentTrack}
               setCurrentTrack={setCurrentTrack}
               togglePlay={togglePlay}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+              uniqFilters={uniqFilters}
+              trackList={trackList}
+              setTrackList={setTrackList}
+              setUniqFilters={setUniqFilters}
             />
             <SideBar />
           </main>
@@ -85,6 +147,9 @@ export default function Home() {
             setVolume={setVolume}
             currentTime={currentTime}
             setCurrentTime={setCurrentTime}
+            trackList={trackList}
+            isShuffle={isShuffle}
+            setIsShuffle={setIsShuffle}
           />
           <footer className="footer"></footer>
         </div>
