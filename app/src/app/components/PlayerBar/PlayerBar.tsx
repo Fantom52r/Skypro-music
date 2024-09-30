@@ -33,7 +33,14 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
     const audio = audioRef.current;
     if (audio) {
       const updateProgress = () => {
-        setProgress((audio.currentTime / audio.duration) * 100);
+        if (audio.duration > 0 && !isNaN(audio.duration)) {
+          const progressPercent = (audio.currentTime / audio.duration) * 100;
+          setProgress(progressPercent);
+          document.documentElement.style.setProperty(
+            "--value",
+            `${progressPercent}%`
+          );
+        }
       };
 
       audio.addEventListener("timeupdate", updateProgress);
@@ -75,26 +82,26 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
     },
     [dispatch, trackList, currentTrack, player.isShuffle, randomTrack]
   );
+  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newProgress = parseFloat(e.target.value);
+    audioRef.current.currentTime =
+      (newProgress / 100) * audioRef.current.duration;
+    setProgress(newProgress);
+  };
 
   return (
     <div className={styles.bar}>
+      <div className={styles.progress} style={{ width: `${progress}%` }} />
       <input
-        className={styles.styledProgressInput}
         type="range"
         min="0"
-        max={audioRef.current?.duration || 100}
-        value={audioRef.current?.currentTime || 0}
-        step={0.01}
-        onChange={(e) => {
-          audioRef.current.currentTime = parseFloat(e.target.value);
-          setProgress(
-            (parseFloat(e.target.value) / audioRef.current.duration) * 100
-          );
-        }}
-        style={{
-          background: `linear-gradient(to right, #b672ff ${progress}%, #2e2e2e ${progress}%)`,
-        }}
+        max="100"
+        step="0.1"
+        value={progress}
+        onChange={handleProgressChange}
+        className={styles.rangeInput}
       />
+      <div />
       <div className={styles.barContent}>
         <div className={styles.barPlayerBlock}>
           <div className={styles.barPlayer}>
