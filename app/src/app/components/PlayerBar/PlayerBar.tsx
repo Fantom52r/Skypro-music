@@ -88,7 +88,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
       (newProgress / 100) * audioRef.current.duration;
     setProgress(newProgress);
   };
-
+console.log(audioRef)
   return (
     <div className={styles.bar}>
       <div className={styles.progress} style={{ width: `${progress}%` }} />
@@ -244,7 +244,8 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
         {audioRef.current?.currentTime
           ? timeFormat(audioRef.current?.currentTime)
           : "0:00"}{" "}
-        / {timeFormat(currentTrack?.duration_in_seconds)}
+
+        / {timeFormat(audioRef.current?.duration)}
       </p>
     </div>
   );

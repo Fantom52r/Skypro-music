@@ -485,7 +485,7 @@
 
 .progress {
   position: absolute;
-  top: 0;
+  top: 6px;
   left: 0;
   height: 8px;
   background-color: #b672ff;
@@ -500,7 +500,7 @@
   height: 8px;
   background: transparent;
   position: relative;
-  z-index: 2;
+  z-index: 5000;
   outline: none;
   cursor: pointer;
 }
