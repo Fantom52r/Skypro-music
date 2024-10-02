@@ -1,13 +1,12 @@
-"use client"
+"use client";
 import styles from "./centerBlock.module.css";
 import Image from "next/image";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import Search from "../Search/Search";
 import Filter from "../Filter/Filter";
 import TrackList from "../TrackList/TrackList";
 import { getData } from "../../../API/TrackApi";
 import { TrackType } from "../../../types";
-
 
 const UNIQ_FILTERS: Filters = {
   AUTORS: [],
@@ -21,19 +20,22 @@ interface Filters {
   GENRES: string[];
 }
 
-const CenterBlock = () => {
-
+const CenterBlock = ({
+  currentTrack,
+  setCurrentTrack,
+  togglePlay,
+}) => {
   const [trackList, setTrackList] = useState<TrackType[]>([]);
   const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
 
-  const getUniqFilters = (res:TrackType[]) => {
+  const getUniqFilters = (res: TrackType[]) => {
     const uniqGenres = {};
     const uniqDates = {};
     const uniqAuthors = {};
 
     res.forEach((track) => {
-      if (track.author !=="-" ) {
-      uniqAuthors[track.author] = true;
+      if (track.author !== "-") {
+        uniqAuthors[track.author] = true;
       }
     });
     const listAuthors = Object.keys(uniqAuthors);
@@ -59,9 +61,9 @@ const CenterBlock = () => {
 
   useEffect(() => {
     const getDataTracks = async () => {
-const response:TrackType[] = await getData()
-setTrackList(response)
-getUniqFilters(response)
+      const response: TrackType[] = await getData();
+      setTrackList(response);
+      getUniqFilters(response);
     };
     getDataTracks();
   }, []);
@@ -70,7 +72,7 @@ getUniqFilters(response)
     <div className="main__centerblock centerblock">
       <Search />
       <h2 className="centerblock__h2">Треки</h2>
-      <Filter uniqFilters ={uniqFilters}/>
+      <Filter uniqFilters={uniqFilters} />
       <div className="centerblock__content playlist-content">
         <div className="content__title playlist-title">
           <div className="playlist-title__col col01">Трек</div>
@@ -82,7 +84,12 @@ getUniqFilters(response)
             </svg>
           </div>
         </div>
-        <TrackList trackList = {trackList}/>
+        <TrackList
+          trackList={trackList}
+          currentTrack={currentTrack}
+          setCurrentTrack={setCurrentTrack}
+          togglePlay={togglePlay}
+        />
       </div>
     </div>
   );
