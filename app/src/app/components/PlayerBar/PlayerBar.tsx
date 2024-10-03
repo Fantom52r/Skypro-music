@@ -243,9 +243,10 @@ console.log(audioRef)
       <p className={styles.playTime}>
         {audioRef.current?.currentTime
           ? timeFormat(audioRef.current?.currentTime)
-          : "0:00"}{" "}
-
-        / {timeFormat(audioRef.current?.duration)}
+          : "0:00"}
+        / {audioRef.current?.duration
+          ? timeFormat(audioRef.current?.duration)
+          : "0:00"}
       </p>
     </div>
   );

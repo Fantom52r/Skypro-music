@@ -3,17 +3,31 @@
 import Image from "next/image";
 import React from "react";
 import styles from "./SideBar.module.css";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
+import { useEffect, useState } from "react";
 
 const SideBar = () => {
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+
+    if (typeof window !== "undefined") {
+      const storedUserName = localStorage.getItem("userName");
+      setUsername(storedUserName);
+    }
+  }, []);
+
   return (
     <div className={styles.mainSidebar}>
       <div className={styles.sidebarPersonal}>
-        <p className={styles.sidebarPersonalName}>Sergey.Ivanov</p>
-        <div className={styles.sidebarIcon}>
+        <p className={styles.sidebarPersonalName}>{username? username:"Имя пользователя"}</p>
+        <Link href="/login" className={styles.sidebarIcon}>
           <svg>
             <use xlinkHref="img/icon/sprite.svg#logout"></use>
           </svg>
-        </div>
+        </Link>
       </div>
       <div className={styles.sidebarBlock}>
         <div className={styles.sidebarList}>

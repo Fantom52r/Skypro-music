@@ -1,32 +1,32 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "./features/authSlice";
-import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from "react-redux";
-import filtersReducer from "./features/filterSlice"
-import trackReducer from "./features/trackSlice"
-import playerReducer from "./features/playerSlice"
-// Функция makeStore создает и возвращает хранилище Redux с помощью функции configureStore.
-export const makeStore = () => {
-  return configureStore({
-    // Мы передаем объект, в котором свойство reducer содержит корневой редьюсер, объединяющий все редьюсеры нашего приложения.
-    reducer: combineReducers({
-      auth: authReducer,
-      filters:filtersReducer,
-      tracks:trackReducer,
-      player:playerReducer,
-    }),
-  });
-};
+import {
+  TypedUseSelectorHook,
+  useDispatch,
+  useSelector,
+  useStore,
+} from "react-redux";
+import filtersReducer from "./features/filterSlice";
+import trackReducer from "./features/trackSlice";
+import playerReducer from "./features/playerSlice";
 
-// Тип AppStore представляет собой тип нашего хранилища Redux, который возвращает функция makeStore.
-export type AppStore = ReturnType<typeof makeStore>;
+const rootReducer = combineReducers({
+  auth: authReducer,
+  filters: filtersReducer,
+  tracks: trackReducer,
+  player: playerReducer,
+});
 
-// Тип RootState представляет собой тип состояния нашего приложения, который возвращает функция getState хранилища Redux.
-export type RootState = ReturnType<AppStore["getState"]>;
+const makeStore = configureStore({
+  reducer: rootReducer,
+});
 
-// Тип AppDispatch представляет собой тип функции диспетчера, который возвращает функция dispatch хранилища Redux.
-export type AppDispatch = AppStore["dispatch"];
+export type AppStore = typeof makeStore;
+export type RootState = ReturnType<typeof makeStore.getState>;
+export type AppDispatch = typeof makeStore.dispatch
 
-// Хуки useAppDispatch, useAppSelector и useAppStore позволяют использовать функции useDispatch, useSelector и useStore из библиотеки react-redux с типизацией.
-export const useAppDispatch: () => AppDispatch = useDispatch;
+
+export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-export const useAppStore: () => AppStore = useStore;
+export const useAppStore = () => useStore<AppStore>();
+export default makeStore;
