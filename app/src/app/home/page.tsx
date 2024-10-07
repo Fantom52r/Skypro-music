@@ -1,7 +1,7 @@
 "use client";
 
+import dynamic from 'next/dynamic'; 
 import Header from "../components/Header/Header";
-import CenterBlock from "../components/CenterBlock/CenterBlock";
 import SideBar from "../components/Sidebar/SideBar";
 import PlayerBar from "../components/PlayerBar/PlayerBar";
 import { useState, useRef, useEffect } from "react";
@@ -13,22 +13,25 @@ import { setPlay } from "../../store/features/playerSlice";
 import { setFilters } from "../../store/features/filterSlice";
 import { setCurrentTrack, setTracks } from "../../store/features/trackSlice";
 
+const CenterBlock = dynamic(() => import('../components/CenterBlock/CenterBlock'), {
+  ssr: false, 
+});
+
 export default function Home() {
   const player = useSelector((state: RootState) => state.player);
-  // const trackList = useSelector((state: RootState) => state.tracks.trackList);
   const currentTrack = useSelector(
     (state: RootState) => state.tracks.currentTrack
   );
   const dispatch = useDispatch();
 
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const togglePlay = (track: TrackType = null) => {
+  const togglePlay = (track: TrackType) => {
     const audio = audioRef.current;
-    if (player.isPlaying && track.name === currentTrack.name) {
+    if (audio && player.isPlaying && track.name === currentTrack?.name) {
       audio.pause();
       dispatch(setPlay(false));
-    } else {
+    } else if (audio) {
       audio.play();
       dispatch(setPlay(true));
     }
@@ -71,7 +74,7 @@ export default function Home() {
     const getDataTracks = async () => {
       const response: TrackType[] = await getData();
       dispatch(setTracks(response));
-      dispatch(setCurrentTrack(response[0]))
+      dispatch(setCurrentTrack(response[0]));
       getUniqFilters(response);
     };
     getDataTracks();
@@ -82,7 +85,9 @@ export default function Home() {
     if (audio && player.isPlaying) {
       audio.play();
     }
-    audio.loop = player.isLoop;
+    if (audio) {
+      audio.loop = player.isLoop;
+    }
   }, [currentTrack, player.isPlaying, player.isLoop]);
 
   useEffect(() => {
@@ -97,7 +102,7 @@ export default function Home() {
         <div className="container">
           <main className="main">
             <Header />
-            <CenterBlock togglePlay={togglePlay} />
+            <CenterBlock togglePlay={togglePlay} /> 
             <SideBar />
           </main>
           <PlayerBar togglePlay={togglePlay} audioRef={audioRef} />

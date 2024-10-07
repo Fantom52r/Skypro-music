@@ -1,32 +1,28 @@
-//   Доделать
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./SideBar.module.css";
-
-import { useEffect, useState } from "react";
-// import { useRouter } from "next/router";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { setUserLogOut } from "../../../store/features/authSlice";
 
 const SideBar = () => {
-  const [username, setUsername] = useState<string | null>(
-    localStorage.getItem("userName") || null
-  );
-
+  const [username, setUsername] = useState<string | null>(null);
   const isAuth = useSelector((state: RootState) => state.auth.authState);
-
   const dispatch = useDispatch();
 
-  // const router = useRouter();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUsername = localStorage.getItem("userName");
+      setUsername(storedUsername);
+    }
+  }, []);
 
   const handleClickLogOut = () => {
     localStorage.setItem("userName", "");
     localStorage.setItem("accessToken", "");
     localStorage.setItem("refreshToken", "");
-    // dispatch(setUserLogOut());
     setUsername(null);
   };
 
@@ -35,14 +31,14 @@ const SideBar = () => {
       <div className={styles.sidebarPersonal}>
         <p className={styles.sidebarPersonalName}>{username ? username : ""}</p>
         <Link
-            href="login"
-            onClick={handleClickLogOut}
-            className={styles.sidebarIcon}
-          >
-            <svg>
-              <use xlinkHref="img/icon/sprite.svg#logout"></use>
-            </svg>
-          </Link>
+          href="login"
+          onClick={handleClickLogOut}
+          className={styles.sidebarIcon}
+        >
+          <svg>
+            <use xlinkHref="img/icon/sprite.svg#logout"></use>
+          </svg>
+        </Link>
       </div>
       <div className={styles.sidebarBlock}>
         <div className={styles.sidebarList}>

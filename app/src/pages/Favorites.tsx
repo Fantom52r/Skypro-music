@@ -1,91 +1,45 @@
-import React, { useEffect, useState } from "react";
+"use client";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import { TrackType } from "../types";
-import styles from "../app/components/TrackList/TrackList.module.css";
-import Track from "../app/components/track/Track";
-import { setCurrentTrack, setFavoriteList } from "../store/features/trackSlice";
-import {
-  addFavoriteTrack,
-  deleteFavoriteTrack,
-  getAllFavoriteTracks,
-} from "../API/TrackApi";
+import { getAllFavoriteTracks } from "../API/TrackApi";
+import { setFavoriteList } from "../store/features/trackSlice";
+import CenterBlock from "../app/components/CenterBlock/CenterBlock";
+import { useRouter } from "next/router";
 
-const Favorites = () => {
+const FavoritesPage = ({ togglePlay }) => {
+  const dispatch = useDispatch();
   const favoriteTracks = useSelector(
     (state: RootState) => state.tracks.favoriteList
   );
-  const [isAuthUser, setIsAuthUser] = useState<string | null>(
-    null
-  );
-
-  const currentTrack: TrackType | null = useSelector(
-    (state: RootState) => state?.tracks.currentTrack
-  );
-  const player = useSelector((state: RootState) => state.player);
-  const dispatch = useDispatch();
-  const timeFormat = (digit) => {
-    let minutes = Math.floor(digit / 60);
-    let seconds = digit % 60;
-    return [
-      minutes < 10 ? "0" + minutes : minutes,
-      ":",
-      seconds < 10 ? "0" + seconds : seconds,
-    ];
-  };
-
-  const handleClickTrack = (track: TrackType) => {
-    dispatch(setCurrentTrack(track));
-    // togglePlay(track);
-  };
-
-  const handleClickLike = async (id) => {
-    const response = await addFavoriteTrack(id);
-    const newFavoriteList = await getAllFavoriteTracks();
-    dispatch(setFavoriteList(newFavoriteList.data));
-  };
-
-  const handleClickDisLike = async (id) => {
-    const response = await deleteFavoriteTrack(id);
-    const newFavoriteList = await getAllFavoriteTracks();
-    dispatch(setFavoriteList(newFavoriteList.data));
-  };
+  const router = useRouter();
+  const isAuthUser = useSelector((state: RootState) => !!state.auth.userName);
 
   useEffect(() => {
-    if (isAuthUser) {
-      const getAllFavorites = async () => {
-        try {
-          const response = await getAllFavoriteTracks();
-          if (response) {
-            dispatch(setFavoriteList(response.data));
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      getAllFavorites();
+    if (!isAuthUser) {
+      router.push("/signin");
     }
-  }, []);
+  }, [isAuthUser, router]);
 
-  useEffect(() => {}, [favoriteTracks]);
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const response = await getAllFavoriteTracks();
+        dispatch(setFavoriteList(response.data));
+      } catch (error) {
+        console.error("Error fetching favorite tracks:", error);
+      }
+    };
+
+    fetchFavorites();
+  }, [dispatch]);
+
   return (
-    <div className={styles.contentPlaylist}>
-      {favoriteTracks?.map((track: TrackType) => (
-        <Track
-          key={track._id}
-          track={track}
-          handleClickTrack={handleClickTrack}
-          currentTrack={currentTrack}
-          player={player}
-          handleClickLike={handleClickLike}
-          timeFormat={timeFormat}
-          favoriteTracks={favoriteTracks}
-          handleClickDisLike={handleClickDisLike}
-          isAuthUser={isAuthUser}
-        />
-      ))}
+    <div>
+      <h1>Избранные треки</h1>
+      <CenterBlock togglePlay={togglePlay} />
     </div>
   );
 };
 
-export default Favorites;
+export default FavoritesPage;

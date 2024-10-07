@@ -28,19 +28,22 @@ interface PlayerBarProps {
 
 const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
   const [progress, setProgress] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isAuthUser, setIsAuthUser] = useState<string | null>(
-    localStorage.getItem("userName") || null
-  );
 
-  const player = useSelector((state: RootState) => state.player);
-  const trackList = useSelector((state: RootState) => state.tracks.trackList);
-  const currentTrack = useSelector(
-    (state: RootState) => state.tracks.currentTrack
-  );
   const favoriteTracks = useSelector(
     (state: RootState) => state.tracks.favoriteList
   );
+  const currentTrack = useSelector(
+    (state: RootState) => state.tracks.currentTrack
+  );
+
+  const isLiked = favoriteTracks.some((element) => element._id === currentTrack?._id);
+
+  const isAuthUser = localStorage.getItem("userName") || null
+
+  const player = useSelector((state: RootState) => state.player);
+  const trackList = useSelector((state: RootState) => state.tracks.trackList);
+
+
   const dispatch = useDispatch();
   const duration = audioRef.current?.duration || 0;
 
@@ -55,16 +58,10 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
         const newFavoriteList = await getAllFavoriteTracks();
         dispatch(setFavoriteList(newFavoriteList.data));
       }
-
-      setIsLiked(!isLiked);
     } else {
       alert("Необходимо авторизоваться");
     }
   };
-
-  useEffect(() => {
-    setIsLiked(favoriteTracks.some((el) => el.name === currentTrack?.name));
-  }, [favoriteTracks]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -119,13 +116,39 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
     },
     [dispatch, trackList, currentTrack, player.isShuffle, randomTrack]
   );
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const updateProgress = () => {
+        if (audio.duration > 0 && !isNaN(audio.duration)) {
+          const progressPercent = (audio.currentTime / audio.duration) * 100;
+          setProgress(progressPercent);
+          document.documentElement.style.setProperty(
+            "--value",
+            `${progressPercent}%`
+          );
+        }
+      };
+  
+      audio.addEventListener("timeupdate", updateProgress);
+  
+      return () => {
+        audio.removeEventListener("timeupdate", updateProgress);
+      };
+    }
+  }, [audioRef]);
+  
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newProgress = parseFloat(e.target.value);
-    audioRef.current.currentTime =
-      (newProgress / 100) * audioRef.current.duration;
-    setProgress(newProgress);
+    if (audioRef.current) {
+      const newProgress = parseFloat(e.target.value);
+      audioRef.current.currentTime =
+        (newProgress / 100) * audioRef.current.duration;
+      setProgress(newProgress);
+    }
   };
-  console.log(audioRef);
+  
+
+  
   return (
     <div className={styles.bar}>
       <div className={styles.progress} style={{ width: `${progress}%` }} />

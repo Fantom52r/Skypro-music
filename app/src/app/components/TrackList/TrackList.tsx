@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./TrackList.module.css";
 import { TrackType } from "../../../types";
 import {
@@ -15,28 +15,22 @@ import {
 } from "../../../API/TrackApi";
 import Track from "../track/Track";
 
-const TrackList = ({ togglePlay }) => {
-  const [isAuthUser, setIsAuthUser] = useState<string | null>(
-    localStorage.getItem("userName") || null
-  );
-  const [favoriteTracks, setFavoriteTracks] = useState([]);
-  const trackList: TrackType[] = useSelector(
-    (state: RootState) => state.tracks.trackList
-  );
+const TrackList = ({ tracks, togglePlay }) => {
+  const [isAuthUser, setIsAuthUser] = useState<string | null>(null);
+  const [favoriteTracks, setFavoriteTracks] = useState<TrackType[]>([]);
 
   const currentTrack: TrackType | null = useSelector(
     (state: RootState) => state?.tracks.currentTrack
   );
   const player = useSelector((state: RootState) => state.player);
   const dispatch = useDispatch();
-  const timeFormat = (digit) => {
+
+  const timeFormat = (digit: number) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
-    return [
-      minutes < 10 ? "0" + minutes : minutes,
-      ":",
-      seconds < 10 ? "0" + seconds : seconds,
-    ];
+    return `${minutes < 10 ? "0" + minutes : minutes}:${
+      seconds < 10 ? "0" + seconds : seconds
+    }`;
   };
 
   const handleClickTrack = (track: TrackType) => {
@@ -44,19 +38,24 @@ const TrackList = ({ togglePlay }) => {
     togglePlay(track);
   };
 
-  const handleClickLike = async (id) => {
-    const response = await addFavoriteTrack(id);
+  const handleClickLike = async (id: string) => {
+    await addFavoriteTrack(id);
     const newFavoriteList = await getAllFavoriteTracks();
     dispatch(setFavoriteList(newFavoriteList.data));
   };
 
-  const handleClickDisLike = async (id) => {
-    const response = await deleteFavoriteTrack(id);
+  const handleClickDisLike = async (id: string) => {
+    await deleteFavoriteTrack(id);
     const newFavoriteList = await getAllFavoriteTracks();
     dispatch(setFavoriteList(newFavoriteList.data));
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const authUser = localStorage.getItem("userName");
+      setIsAuthUser(authUser);
+    }
+
     if (isAuthUser) {
       const getAllFavorites = async () => {
         try {
@@ -71,14 +70,11 @@ const TrackList = ({ togglePlay }) => {
       };
       getAllFavorites();
     }
-  }, []);
-
-  useEffect(() => {
-  }, [favoriteTracks,]);
+  }, [isAuthUser, dispatch, favoriteTracks]);
 
   return (
     <div className={styles.contentPlaylist}>
-      {trackList?.map((track: TrackType) => (
+      {tracks?.map((track: TrackType) => (
         <Track
           key={track._id}
           track={track}

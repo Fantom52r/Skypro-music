@@ -12,7 +12,9 @@ const Track = ({
   handleClickDisLike,
   isAuthUser,
 }) => {
-  const [isLiked, setIsLiked] = useState(false);
+
+  const isLiked = favoriteTracks.some((element) => element._id === track._id);
+
 
   const handleClickLikeTrack = () => {
     if (isAuthUser) {
@@ -21,18 +23,11 @@ const Track = ({
       } else {
         handleClickLike(track._id);
       }
-
-      setIsLiked(!isLiked);
     } else {
       alert("Необходимо авторизоваться");
     }
   };
-  useEffect(() => {
-    if (isAuthUser) {
-    setIsLiked(favoriteTracks.some((element) => element.name === track.name));
 
-    }
-  }, [favoriteTracks,]);
 
   return (
     <div key={track._id} className={styles.playlistItem}>
