@@ -11,7 +11,8 @@ const initialState: AuthStateType = {
   authState: false,
   access: "",
   refresh: "",
-  userName: typeof window !== "undefined" ? localStorage.getItem("userName") || "" : ""
+  userName:
+    typeof window !== "undefined" ? localStorage.getItem("userName") || "" : "",
 };
 
 const authSlice = createSlice({
@@ -30,9 +31,14 @@ const authSlice = createSlice({
     },
     setUserName: (state, action: PayloadAction<string>) => {
       state.userName = action.payload;
+      state.authState = true;
+    },
+
+    setUserLogOut: (state) => {
+      state.authState = false;
     },
   },
 });
 
-export const { setAuthState, setUserName } = authSlice.actions;
+export const { setAuthState, setUserName, setUserLogOut } = authSlice.actions;
 export const authReducer = authSlice.reducer;

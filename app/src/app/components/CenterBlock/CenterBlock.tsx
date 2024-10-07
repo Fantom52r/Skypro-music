@@ -25,6 +25,7 @@ const CenterBlock = ({ togglePlay }) => {
             </svg>
           </div>
         </div>
+        
         <TrackList togglePlay={togglePlay} />
       </div>
     </div>

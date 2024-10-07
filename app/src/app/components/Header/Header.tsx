@@ -2,6 +2,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import styles from "./header.module.css";
+import Link from "next/link";
 const Header = () => {
   const [openedNavBar, setOpenedNavBar] = useState(false);
   return (
@@ -28,9 +29,9 @@ const Header = () => {
             </a>
           </li>
           <li className={styles.menuItem}>
-            <a href="#" className={styles.menuLink}>
+            <Link href="/Favorites" className={styles.menuLink}>
               Мой плейлист
-            </a>
+            </Link>
           </li>
           <li className={styles.menuItem}>
             <a href="../signin.html" className={styles.menuLink}>

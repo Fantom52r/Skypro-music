@@ -1,33 +1,32 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import "../../public/css/signin.css";
 import styles from "./login.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { loginUser } from "../API/TrackApi";
+import { getAccessToken, loginUser } from "../API/TrackApi";
 import { useDispatch } from "react-redux";
 import { setUserName } from "../store/features/authSlice";
-
 
 const AuthPages = () => {
   const [login, setLogin] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const router = useRouter()
-  const dispatch = useDispatch()
+  const router = useRouter();
+  const dispatch = useDispatch();
   const handleClickLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await loginUser({ email:login, password });
-    dispatch(setUserName(response.username))
-    localStorage.setItem("userName",response.username)
-    console.log(response)
-    // dispatch(setUserName(response))
-    router.push('/home')
+      const response = await loginUser({ email: login, password });
+      dispatch(setUserName(response.username));
+      localStorage.setItem("userName", response.username);
+      const token = await getAccessToken({ email: login, password });
+      localStorage.setItem("accessToken",token.access)
+      localStorage.setItem("refreshToken",token.refresh)
+      router.push("/home");
     } catch (error) {
-console.error(error)
+      console.error(error);
     }
-
   };
   return (
     <div className={styles.wrapper}>
@@ -60,7 +59,7 @@ console.error(error)
               placeholder="Пароль"
               value={password}
             />
-            <button  onClick={handleClickLogin} className={styles.modalBtnEnter}>
+            <button onClick={handleClickLogin} className={styles.modalBtnEnter}>
               Войти
             </button>
             <button className={styles.modalBtnSignup}>

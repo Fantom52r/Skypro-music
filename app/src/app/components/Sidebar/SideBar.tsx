@@ -1,33 +1,48 @@
 //   Доделать
-
+"use client";
 import Image from "next/image";
 import React from "react";
 import styles from "./SideBar.module.css";
-import Link from "next/link";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store/store";
+
 import { useEffect, useState } from "react";
+// import { useRouter } from "next/router";
+import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
+import { setUserLogOut } from "../../../store/features/authSlice";
 
 const SideBar = () => {
-  const [username, setUsername] = useState<string | null>(null)
+  const [username, setUsername] = useState<string | null>(
+    localStorage.getItem("userName") || null
+  );
 
-  useEffect(() => {
+  const isAuth = useSelector((state: RootState) => state.auth.authState);
 
-    if (typeof window !== "undefined") {
-      const storedUserName = localStorage.getItem("userName");
-      setUsername(storedUserName);
-    }
-  }, []);
+  const dispatch = useDispatch();
+
+  // const router = useRouter();
+
+  const handleClickLogOut = () => {
+    localStorage.setItem("userName", "");
+    localStorage.setItem("accessToken", "");
+    localStorage.setItem("refreshToken", "");
+    // dispatch(setUserLogOut());
+    setUsername(null);
+  };
 
   return (
     <div className={styles.mainSidebar}>
       <div className={styles.sidebarPersonal}>
-        <p className={styles.sidebarPersonalName}>{username? username:"Имя пользователя"}</p>
-        <Link href="/login" className={styles.sidebarIcon}>
-          <svg>
-            <use xlinkHref="img/icon/sprite.svg#logout"></use>
-          </svg>
-        </Link>
+        <p className={styles.sidebarPersonalName}>{username ? username : ""}</p>
+        <Link
+            href="login"
+            onClick={handleClickLogOut}
+            className={styles.sidebarIcon}
+          >
+            <svg>
+              <use xlinkHref="img/icon/sprite.svg#logout"></use>
+            </svg>
+          </Link>
       </div>
       <div className={styles.sidebarBlock}>
         <div className={styles.sidebarList}>

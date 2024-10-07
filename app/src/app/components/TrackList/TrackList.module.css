@@ -161,3 +161,21 @@
     transform: scale(1);
   }
 }
+.trackPlayLikeSvg {
+  margin-left: 20px;
+  width: 14px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.trackPlayLikeSvgActive {
+  fill: #b672ff;
+  stroke: #b672ff;
+}
+
+.trackPlayLikeBtn {
+  background: transparent;
+  border: none;
+  margin-right: 16px;
+}

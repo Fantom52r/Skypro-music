@@ -1,14 +1,17 @@
 "use client";
+
 import React, { useState } from "react";
 import "../app/styles/globals.css";
 import styles from "./registration.module.css";
 import Image from "next/image";
 import { registerUser } from "../API/TrackApi";
 import { useRouter } from "next/router";
+import { setUserName } from "../store/features/authSlice";
 const Registration = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [doublePassword, setDoublePassword] = useState<string>("");
+  const [username, setUserName] = useState<string>("");
   const router = useRouter();
   const handleClickRegistration = async (e) => {
     e.preventDefault();
@@ -17,8 +20,10 @@ const Registration = () => {
       return;
     }
     if (password === doublePassword) {
-      const response = await registerUser({ email, password });
-router.push("/login")
+      const response = await registerUser({ username, email, password });
+      if (response) {
+        router.push("/login");
+      }
     } else {
       alert("Пароли не совпадают");
     }
@@ -38,6 +43,15 @@ router.push("/login")
                 />
               </div>
             </a>
+
+            <input
+              onChange={(e) => setUserName(e.target.value)}
+              className={`${styles.modalInput} ${styles.login}`}
+              type="text"
+              name="name"
+              placeholder="Имя Пользователя"
+            />
+
             <input
               onChange={(e) => setEmail(e.target.value)}
               className={`${styles.modalInput} ${styles.login}`}

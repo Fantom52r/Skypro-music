@@ -3,12 +3,16 @@ import { TrackType } from "../../types";
 
 interface TrackState {
   trackList: TrackType[];
+  favoriteList: TrackType[];
   currentTrack: TrackType | null;
+  isCurrentTrackLike: boolean;
 }
 
 const initialState: TrackState = {
   trackList: [],
+  favoriteList: [],
   currentTrack: null,
+  isCurrentTrackLike: false,
 };
 
 const trackSlice = createSlice({
@@ -21,9 +25,15 @@ const trackSlice = createSlice({
     setCurrentTrack: (state, action: PayloadAction<TrackType>) => {
       state.currentTrack = action.payload;
     },
+    setFavoriteList: (state, action: PayloadAction<TrackType[]>) => {
+      state.favoriteList = action.payload;
+    },
+    setLikeTrack:(state, action: PayloadAction<boolean>) => {
+      state.isCurrentTrackLike = action.payload;
+    },
   },
 });
 
-
-export const {setTracks,setCurrentTrack}= trackSlice.actions
-export default trackSlice.reducer
+export const { setTracks, setCurrentTrack, setFavoriteList,setLikeTrack } =
+  trackSlice.actions;
+export default trackSlice.reducer;

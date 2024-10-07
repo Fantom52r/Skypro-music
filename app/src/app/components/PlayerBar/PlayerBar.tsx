@@ -9,9 +9,17 @@ import {
   setVolume,
   setPlay,
 } from "../../../store/features/playerSlice";
-import { setCurrentTrack } from "../../../store/features/trackSlice";
+import {
+  setCurrentTrack,
+  setFavoriteList,
+} from "../../../store/features/trackSlice";
 import { TrackType } from "../../../types";
 import styles from "./PlayerBar.module.css";
+import {
+  addFavoriteTrack,
+  deleteFavoriteTrack,
+  getAllFavoriteTracks,
+} from "../../../API/TrackApi";
 
 interface PlayerBarProps {
   togglePlay: (track: TrackType) => void;
@@ -19,15 +27,44 @@ interface PlayerBarProps {
 }
 
 const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
+  const [progress, setProgress] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isAuthUser, setIsAuthUser] = useState<string | null>(
+    localStorage.getItem("userName") || null
+  );
+
   const player = useSelector((state: RootState) => state.player);
   const trackList = useSelector((state: RootState) => state.tracks.trackList);
   const currentTrack = useSelector(
     (state: RootState) => state.tracks.currentTrack
   );
+  const favoriteTracks = useSelector(
+    (state: RootState) => state.tracks.favoriteList
+  );
   const dispatch = useDispatch();
   const duration = audioRef.current?.duration || 0;
 
-  const [progress, setProgress] = useState(0);
+  const handleClickLike = async () => {
+    if (isAuthUser) {
+      if (isLiked) {
+        const response = await deleteFavoriteTrack(currentTrack?._id);
+        const newFavoriteList = await getAllFavoriteTracks();
+        dispatch(setFavoriteList(newFavoriteList.data));
+      } else {
+        const response = await addFavoriteTrack(currentTrack?._id);
+        const newFavoriteList = await getAllFavoriteTracks();
+        dispatch(setFavoriteList(newFavoriteList.data));
+      }
+
+      setIsLiked(!isLiked);
+    } else {
+      alert("Необходимо авторизоваться");
+    }
+  };
+
+  useEffect(() => {
+    setIsLiked(favoriteTracks.some((el) => el.name === currentTrack?.name));
+  }, [favoriteTracks]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -72,7 +109,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
         return;
       }
       const currentIndex = trackList.findIndex(
-        (track) => track._id === currentTrack._id
+        (track) => track._id === currentTrack?._id
       );
       const newIndex = direction ? currentIndex + 1 : currentIndex - 1;
 
@@ -88,7 +125,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
       (newProgress / 100) * audioRef.current.duration;
     setProgress(newProgress);
   };
-console.log(audioRef)
+  console.log(audioRef);
   return (
     <div className={styles.bar}>
       <div className={styles.progress} style={{ width: `${progress}%` }} />
@@ -122,7 +159,7 @@ console.log(audioRef)
                 src={currentTrack?.track_file}
               ></audio>
               <button
-                onClick={() => togglePlay(currentTrack)}
+                onClick={() => currentTrack && togglePlay(currentTrack)}
                 className={styles.playerBtnPlay}
               >
                 {player.isPlaying ? (
@@ -204,16 +241,18 @@ console.log(audioRef)
               </div>
 
               <div className={styles.trackPlayLikeDis}>
-                <div className={styles.trackPlayLike}>
-                  <svg className={styles.trackPlayLikeSvg}>
+                <button
+                  onClick={handleClickLike}
+                  className={styles.trackPlayLike}
+                >
+                  <svg
+                    className={`${styles.trackPlayLikeSvg} ${
+                      isLiked && styles.trackPlayLikeSvgActive
+                    }`}
+                  >
                     <use xlinkHref="img/icon/sprite.svg#icon-like"></use>
                   </svg>
-                </div>
-                <div className={styles.trackPlayDisLike}>
-                  <svg className={styles.trackPlayDislikeSvg}>
-                    <use xlinkHref="img/icon/sprite.svg#icon-dislike"></use>
-                  </svg>
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -244,7 +283,8 @@ console.log(audioRef)
         {audioRef.current?.currentTime
           ? timeFormat(audioRef.current?.currentTime)
           : "0:00"}
-        / {audioRef.current?.duration
+        /{" "}
+        {audioRef.current?.duration
           ? timeFormat(audioRef.current?.duration)
           : "0:00"}
       </p>

@@ -11,7 +11,7 @@ export const getData = async () => {
   }
 };
 
-export const registerUser = async ({ email, password }) => {
+export const registerUser = async ({ username, email, password }) => {
   try {
     const response = await fetch(`${URL}/user/signup/`, {
       method: "POST",
@@ -21,11 +21,17 @@ export const registerUser = async ({ email, password }) => {
       body: JSON.stringify({
         email,
         password,
-        username: "testVasya",
+        username,
       }),
     });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
     return response.json();
-  } catch (error) {}
+  } catch (error) {
+    alert(error);
+  }
 };
 
 export const loginUser = async ({ email, password }) => {
@@ -47,5 +53,89 @@ export const loginUser = async ({ email, password }) => {
     const user = await response.json();
     return user;
   } catch (error) {
-alert(error)  }
+    alert(error);
+  }
+};
+
+export const getAccessToken = async ({ email, password }) => {
+  try {
+    const response = await fetch(`${URL}/user/token/`, {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    return response.json();
+  } catch (error) {
+    alert(error);
+  }
+};
+
+export const getAllFavoriteTracks = async () => {
+  try {
+    const access = localStorage.getItem("accessToken");
+    const response = await fetch(`${URL}/catalog/track/favorite/all/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    return response.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const addFavoriteTrack = async (id) => {
+  try {
+    const access = localStorage.getItem("accessToken");
+    const response = await fetch(`${URL}/catalog/track/${id}/favorite/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const deleteFavoriteTrack = async (id) => {
+  try {
+    const access = localStorage.getItem("accessToken");
+    const response = await fetch(`${URL}/catalog/track/${id}/favorite/`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    return response.json();
+  } catch (error) {
+    console.error(error);
+  }
 };

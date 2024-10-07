@@ -1,27 +1,22 @@
-"use client";
-import React, { use, useEffect, useState } from "react";
-import styles from "./TrackList.module.css";
-import { TrackType } from "../../../types";
-import {
-  setCurrentTrack,
-  setFavoriteList,
-} from "../../../store/features/trackSlice";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store/store";
+import { RootState } from "../store/store";
+import { TrackType } from "../types";
+import styles from "../app/components/TrackList/TrackList.module.css";
+import Track from "../app/components/track/Track";
+import { setCurrentTrack, setFavoriteList } from "../store/features/trackSlice";
 import {
   addFavoriteTrack,
   deleteFavoriteTrack,
   getAllFavoriteTracks,
-} from "../../../API/TrackApi";
-import Track from "../track/Track";
+} from "../API/TrackApi";
 
-const TrackList = ({ togglePlay }) => {
-  const [isAuthUser, setIsAuthUser] = useState<string | null>(
-    localStorage.getItem("userName") || null
+const Favorites = () => {
+  const favoriteTracks = useSelector(
+    (state: RootState) => state.tracks.favoriteList
   );
-  const [favoriteTracks, setFavoriteTracks] = useState([]);
-  const trackList: TrackType[] = useSelector(
-    (state: RootState) => state.tracks.trackList
+  const [isAuthUser, setIsAuthUser] = useState<string | null>(
+    null
   );
 
   const currentTrack: TrackType | null = useSelector(
@@ -41,7 +36,7 @@ const TrackList = ({ togglePlay }) => {
 
   const handleClickTrack = (track: TrackType) => {
     dispatch(setCurrentTrack(track));
-    togglePlay(track);
+    // togglePlay(track);
   };
 
   const handleClickLike = async (id) => {
@@ -63,7 +58,6 @@ const TrackList = ({ togglePlay }) => {
           const response = await getAllFavoriteTracks();
           if (response) {
             dispatch(setFavoriteList(response.data));
-            setFavoriteTracks(response?.data);
           }
         } catch (error) {
           console.error(error);
@@ -73,12 +67,10 @@ const TrackList = ({ togglePlay }) => {
     }
   }, []);
 
-  useEffect(() => {
-  }, [favoriteTracks,]);
-
+  useEffect(() => {}, [favoriteTracks]);
   return (
     <div className={styles.contentPlaylist}>
-      {trackList?.map((track: TrackType) => (
+      {favoriteTracks?.map((track: TrackType) => (
         <Track
           key={track._id}
           track={track}
@@ -96,4 +88,4 @@ const TrackList = ({ togglePlay }) => {
   );
 };
 
-export default TrackList;
+export default Favorites;
