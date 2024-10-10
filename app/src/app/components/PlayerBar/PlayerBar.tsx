@@ -156,6 +156,8 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
       setIsAuth(storedUsername);
     }
   }, []);
+
+  useEffect(() => {}, [favoriteTracks]);
   return (
     <div className={styles.bar}>
       <div className={styles.progress} style={{ width: `${progress}%` }} />

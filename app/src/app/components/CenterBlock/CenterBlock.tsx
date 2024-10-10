@@ -9,7 +9,7 @@ import { TrackType } from "../../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { setTracks, setFavoriteList } from "../../../store/features/trackSlice";
-import { useRouter, usePathname, useSearchParams } from "next/navigation"; 
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 const CenterBlock = ({ togglePlay }) => {
   const [isFavorites, setIsFavorites] = useState(false);
@@ -21,25 +21,25 @@ const CenterBlock = ({ togglePlay }) => {
   );
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const searchParams = useSearchParams(); 
-  const router = useRouter(); 
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
-    const viewParam = searchParams?.get("view"); 
+    const viewParam = searchParams?.get("view");
     if (viewParam === "favorites") {
-      setIsFavorites(true); 
+      setIsFavorites(true);
     } else {
-      setIsFavorites(false); 
+      setIsFavorites(false);
     }
 
     const getAllTracks = async () => {
       let response;
-      if (isFavorites) { 
+      if (isFavorites) {
         response = await getAllFavoriteTracks();
         if (response) {
           dispatch(setFavoriteList(response.data));
         }
-      } else { 
+      } else {
         response = await getData();
         if (response) {
           dispatch(setTracks(response));
@@ -47,7 +47,7 @@ const CenterBlock = ({ togglePlay }) => {
       }
     };
     getAllTracks();
-  }, [dispatch, isFavorites, searchParams]); 
+  }, [dispatch, isFavorites, searchParams]);
 
   const tracksToDisplay = isFavorites ? favoriteTracks : trackList;
 

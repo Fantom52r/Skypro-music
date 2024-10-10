@@ -26,7 +26,7 @@ const Track = ({
       toast.error("Необходимо авторизоваться");
     }
   };
-
+  useEffect(() => {}, [favoriteTracks]);
   return (
     <div key={track._id} className={styles.playlistItem}>
       <div className={styles.playlistTrack}>

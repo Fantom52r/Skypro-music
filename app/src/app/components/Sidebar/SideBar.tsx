@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { setUserLogOut } from "../../../store/features/authSlice";
+import { getCompilation, getTrackByCompilation } from "../../../API/TrackApi";
 
 const SideBar = () => {
   const [username, setUsername] = useState<string | null>(null);
@@ -18,6 +19,19 @@ const SideBar = () => {
       setUsername(storedUsername);
     }
   }, [username]);
+
+  useEffect(() => {
+    const getCompilationSideBar = async () => {
+      try {
+        const response = await getCompilation();
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getCompilationSideBar();
+  }, []);
 
   const handleClickLogOut = () => {
     localStorage.setItem("userName", "");
