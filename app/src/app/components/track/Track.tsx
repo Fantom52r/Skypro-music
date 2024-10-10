@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "../TrackList/TrackList.module.css";
+import { toast } from "react-toastify";
 
 const Track = ({
   track,
@@ -12,9 +13,7 @@ const Track = ({
   handleClickDisLike,
   isAuthUser,
 }) => {
-
   const isLiked = favoriteTracks.some((element) => element._id === track._id);
-
 
   const handleClickLikeTrack = () => {
     if (isAuthUser) {
@@ -24,10 +23,9 @@ const Track = ({
         handleClickLike(track._id);
       }
     } else {
-      alert("Необходимо авторизоваться");
+      toast.error("Необходимо авторизоваться");
     }
   };
-
 
   return (
     <div key={track._id} className={styles.playlistItem}>

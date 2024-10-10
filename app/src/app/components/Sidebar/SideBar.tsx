@@ -17,7 +17,7 @@ const SideBar = () => {
       const storedUsername = localStorage.getItem("userName");
       setUsername(storedUsername);
     }
-  }, []);
+  }, [username]);
 
   const handleClickLogOut = () => {
     localStorage.setItem("userName", "");
@@ -29,7 +29,7 @@ const SideBar = () => {
   return (
     <div className={styles.mainSidebar}>
       <div className={styles.sidebarPersonal}>
-        <p className={styles.sidebarPersonalName}>{username ? username : ""}</p>
+        <p className={styles.sidebarPersonalName}>{username ? "Выйти" : ""}</p>
         <Link
           href="login"
           onClick={handleClickLogOut}

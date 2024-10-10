@@ -20,6 +20,7 @@ import {
   deleteFavoriteTrack,
   getAllFavoriteTracks,
 } from "../../../API/TrackApi";
+import { toast } from "react-toastify";
 
 interface PlayerBarProps {
   togglePlay: (track: TrackType) => void;
@@ -36,19 +37,20 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
     (state: RootState) => state.tracks.currentTrack
   );
 
-  const isLiked = favoriteTracks.some((element) => element._id === currentTrack?._id);
+  const isLiked = favoriteTracks.some(
+    (element) => element._id === currentTrack?._id
+  );
 
-  const isAuthUser = localStorage.getItem("userName") || null
+  const [isAuth, setIsAuth] = useState<null | string>("");
 
   const player = useSelector((state: RootState) => state.player);
   const trackList = useSelector((state: RootState) => state.tracks.trackList);
-
 
   const dispatch = useDispatch();
   const duration = audioRef.current?.duration || 0;
 
   const handleClickLike = async () => {
-    if (isAuthUser) {
+    if (isAuth) {
       if (isLiked) {
         const response = await deleteFavoriteTrack(currentTrack?._id);
         const newFavoriteList = await getAllFavoriteTracks();
@@ -59,7 +61,8 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
         dispatch(setFavoriteList(newFavoriteList.data));
       }
     } else {
-      alert("Необходимо авторизоваться");
+      toast.error("Необходимо авторизоваться");
+      // return <Notification errorMessage = {"необходимо авторизоваться"}/>
     }
   };
 
@@ -129,15 +132,15 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
           );
         }
       };
-  
+
       audio.addEventListener("timeupdate", updateProgress);
-  
+
       return () => {
         audio.removeEventListener("timeupdate", updateProgress);
       };
     }
   }, [audioRef]);
-  
+
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       const newProgress = parseFloat(e.target.value);
@@ -146,9 +149,13 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
       setProgress(newProgress);
     }
   };
-  
 
-  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUsername = localStorage.getItem("userName");
+      setIsAuth(storedUsername);
+    }
+  }, []);
   return (
     <div className={styles.bar}>
       <div className={styles.progress} style={{ width: `${progress}%` }} />

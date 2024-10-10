@@ -16,7 +16,7 @@ const Registration = () => {
   const handleClickRegistration = async (e) => {
     e.preventDefault();
     if (password.length < 7) {
-      alert("пароль должен содержать не менее шести символов");
+      toast.error("пароль должен содержать не менее шести символов");
       return;
     }
     if (password === doublePassword) {
@@ -25,7 +25,7 @@ const Registration = () => {
         router.push("/login");
       }
     } else {
-      alert("Пароли не совпадают");
+      toast.error("Пароли не совпадают");
     }
   };
   return (

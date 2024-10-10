@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+
 const URL = "https://webdev-music-003b5b991590.herokuapp.com";
 
 export const getData = async () => {
@@ -30,7 +32,7 @@ export const registerUser = async ({ username, email, password }) => {
     }
     return response.json();
   } catch (error) {
-    alert(error);
+    toast.error(error);
   }
 };
 
@@ -53,7 +55,7 @@ export const loginUser = async ({ email, password }) => {
     const user = await response.json();
     return user;
   } catch (error) {
-    alert(error);
+    toast.error(error);
   }
 };
 
@@ -75,7 +77,7 @@ export const getAccessToken = async ({ email, password }) => {
     }
     return response.json();
   } catch (error) {
-    alert(error);
+    toast.error(error);
   }
 };
 

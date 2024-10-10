@@ -1,27 +1,46 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./header.module.css";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const [openedNavBar, setOpenedNavBar] = useState(false);
   const router = useRouter();
+
+  const [isAuth, setIsAuth] = useState<null | string>("");
 
   const handleNavigate = (path) => {
     router.push(path);
   };
 
   const handleClickToFavorites = () => {
-    const userAuth = localStorage.getItem("userName") || "";
-
-    if (userAuth) {
+    if (isAuth) {
       handleNavigate("/home?view=favorites");
     } else {
-      alert("Избранные треки доступны только авторизированным пользователям");
+      toast.error(
+        "Избранные треки доступны только авторизированным пользователям"
+      );
     }
   };
 
+  const handleClickLog = () => {
+    if (isAuth) {
+      localStorage.setItem("userName", "");
+      localStorage.setItem("accessToken", "");
+      localStorage.setItem("refreshToken", "");
+      setIsAuth("");
+    } else {
+      handleNavigate("/login");
+    }
+  };
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUsername = localStorage.getItem("userName");
+      setIsAuth(storedUsername);
+    }
+  }, []);
   return (
     <nav className={styles.mainNav}>
       <div className={styles.navLogo}>
@@ -60,9 +79,15 @@ const Header = () => {
             </button>
           </li>
           <li className={styles.menuItem}>
-            <a href="../signin.html" className={styles.menuLink}>
-              Войти
-            </a>
+            {isAuth ? (
+              <button className={styles.menuLink} onClick={handleClickLog}>
+                Выйти
+              </button>
+            ) : (
+              <button className={styles.menuLink} onClick={handleClickLog}>
+                Войти
+              </button>
+            )}
           </li>
         </ul>
       </div>
