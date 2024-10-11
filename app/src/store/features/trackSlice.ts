@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TrackType } from "../../types";
+import { Compilation, TrackType } from "../../types";
 
 interface TrackState {
   trackList: TrackType[];
   favoriteList: TrackType[];
+  compilationList: Compilation[];
   currentTrack: TrackType | null;
   isCurrentTrackLike: boolean;
 }
@@ -11,6 +12,7 @@ interface TrackState {
 const initialState: TrackState = {
   trackList: [],
   favoriteList: [],
+compilationList:[],
   currentTrack: null,
   isCurrentTrackLike: false,
 };
@@ -28,12 +30,17 @@ const trackSlice = createSlice({
     setFavoriteList: (state, action: PayloadAction<TrackType[]>) => {
       state.favoriteList = action.payload;
     },
-    setLikeTrack:(state, action: PayloadAction<boolean>) => {
+
+    setCompilationList: (state, action: PayloadAction<Compilation[]>) => {
+      state.compilationList = action.payload;
+    },
+
+    setLikeTrack: (state, action: PayloadAction<boolean>) => {
       state.isCurrentTrackLike = action.payload;
     },
   },
 });
 
-export const { setTracks, setCurrentTrack, setFavoriteList,setLikeTrack } =
+export const { setTracks, setCurrentTrack, setFavoriteList, setLikeTrack,setCompilationList } =
   trackSlice.actions;
 export default trackSlice.reducer;

@@ -6,12 +6,47 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { setUserLogOut } from "../../../store/features/authSlice";
-import { getCompilation, getTrackByCompilation } from "../../../API/TrackApi";
+import {
+  getCompilation,
+  getTrackByCompilation,
+  getTrackById,
+} from "../../../API/TrackApi";
+import { useRouter } from "next/navigation";
+import { Compilation } from "../../../types";
+import {
+  setCompilationList,
+  setCurrentTrack,
+  setTracks,
+} from "../../../store/features/trackSlice";
+
+const PICTURES_LINKS = [
+  "/img/playlist01.png",
+  "/img/playlist02.png",
+  "/img/playlist03.png",
+];
 
 const SideBar = () => {
   const [username, setUsername] = useState<string | null>(null);
+  const [compilations, setCompilations] = useState([]);
   const isAuth = useSelector((state: RootState) => state.auth.authState);
   const dispatch = useDispatch();
+  const router = useRouter();
+
+  const handleClickNavigate = async (path, compilation) => {
+    router.push(path);
+    try {
+      const responses = await Promise.all(
+        compilation.items.map(async (trackId) => {
+          const response = await getTrackById(trackId);
+          return response;
+        })
+      );
+      console.log(responses);
+      dispatch(setTracks(responses));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -24,7 +59,8 @@ const SideBar = () => {
     const getCompilationSideBar = async () => {
       try {
         const response = await getCompilation();
-        console.log(response.data);
+        dispatch(setCompilationList(response.data));
+        setCompilations(response.data);
       } catch (error) {
         console.error(error);
       }
@@ -56,39 +92,27 @@ const SideBar = () => {
       </div>
       <div className={styles.sidebarBlock}>
         <div className={styles.sidebarList}>
-          <div className={styles.sidebarItem}>
-            <a className={styles.sidebarLink} href="#">
-              <Image
-                className={styles.sidebarImg}
-                src="/img/playlist01.png"
-                alt="day's playlist"
-                width={250}
-                height={170}
-              />
-            </a>
-          </div>
-          <div className={styles.sidebarItem}>
-            <a className={styles.sidebarLink} href="#">
-              <Image
-                className={styles.sidebarImg}
-                src="/img/playlist02.png"
-                alt="day's playlist"
-                width={250}
-                height={170}
-              />
-            </a>
-          </div>
-          <div className={styles.sidebarItem}>
-            <a className={styles.sidebarLink} href="#">
-              <Image
-                className={styles.sidebarImg}
-                src="/img/playlist03.png"
-                alt="day's playlist"
-                width={250}
-                height={170}
-              />
-            </a>
-          </div>
+          {compilations.map((compilation: Compilation, index) => (
+            <div key={compilation?._id} className={styles.sidebarItem}>
+              <button
+                onClick={() =>
+                  handleClickNavigate(
+                    `/home?/compilation/${compilation?._id}`,
+                    compilation
+                  )
+                }
+                className={styles.sidebarLink}
+              >
+                <Image
+                  className={styles.sidebarImg}
+                  src={PICTURES_LINKS[index]}
+                  alt="day's playlist"
+                  width={250}
+                  height={170}
+                />
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

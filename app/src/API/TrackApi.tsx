@@ -13,6 +13,20 @@ export const getData = async () => {
   }
 };
 
+export const getTrackById = async (id) => {
+  try {
+    const response = await fetch(`${URL}/catalog/track/${id}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    const responseData = await response.json();
+    return responseData.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const registerUser = async ({ username, email, password }) => {
   try {
     const response = await fetch(`${URL}/user/signup/`, {

@@ -25,6 +25,8 @@ const TrackList = ({ tracks, togglePlay }) => {
   const favoriteTracks = useSelector(
     (state: RootState) => state.tracks.favoriteList
   );
+
+  const trackList = useSelector((state: RootState) => state.tracks.trackList);
   const player = useSelector((state: RootState) => state.player);
   const dispatch = useDispatch();
 
@@ -73,11 +75,11 @@ const TrackList = ({ tracks, togglePlay }) => {
       getAllFavorites();
     }
   }, [isAuthUser, dispatch]);
-  useEffect(() => {}, [favoriteTracks]);
+  useEffect(() => {}, [favoriteTracks, trackList]);
 
   return (
     <div className={styles.contentPlaylist}>
-      {tracks?.map((track: TrackType) => (
+      {trackList?.map((track: TrackType) => (
         <Track
           key={track._id}
           track={track}
