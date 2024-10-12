@@ -169,6 +169,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
         value={progress}
         onChange={handleProgressChange}
         className={styles.rangeInput}
+          aria-label="volume"
       />
       <div />
       <div className={styles.barContent}>
@@ -193,6 +194,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({ togglePlay, audioRef }) => {
               <button
                 onClick={() => currentTrack && togglePlay(currentTrack)}
                 className={styles.playerBtnPlay}
+                  aria-label="play"
               >
                 {player.isPlaying ? (
                   <svg
