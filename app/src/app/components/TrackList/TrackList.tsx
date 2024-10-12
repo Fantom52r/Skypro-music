@@ -1,66 +1,92 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styles from "./TrackList.module.css";
-import { getTrack } from "../../../API/TrackApi";
 import { TrackType } from "../../../types";
+import {
+  setCurrentTrack,
+  setFavoriteList,
+} from "../../../store/features/trackSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
+import {
+  addFavoriteTrack,
+  deleteFavoriteTrack,
+  getAllFavoriteTracks,
+} from "../../../API/TrackApi";
+import Track from "../track/Track";
 
-const TrackList = ({ trackList, currentTrack, setCurrentTrack,togglePlay }) => {
-  const timeFormat = (digit) => {
+const TrackList = ({ tracks, togglePlay }) => {
+  const [isAuthUser, setIsAuthUser] = useState<string | null>(null);
+  const [favoriteTracks, setFavoriteTracks] = useState<TrackType[]>([]);
+
+  const currentTrack: TrackType | null = useSelector(
+    (state: RootState) => state?.tracks.currentTrack
+  );
+  const player = useSelector((state: RootState) => state.player);
+  const dispatch = useDispatch();
+
+  const timeFormat = (digit: number) => {
     let minutes = Math.floor(digit / 60);
     let seconds = digit % 60;
-    return [
-      minutes < 10 ? "0" + minutes : minutes,
-      ":",
-      seconds < 10 ? "0" + seconds : seconds,
-    ];
+    return `${minutes < 10 ? "0" + minutes : minutes}:${
+      seconds < 10 ? "0" + seconds : seconds
+    }`;
   };
 
-const handleClickTrack = async (track:TrackType)=>{
-  setCurrentTrack(track)
-  togglePlay(track)
-  const res = await getTrack(track._id)
-}
+  const handleClickTrack = (track: TrackType) => {
+    dispatch(setCurrentTrack(track));
+    togglePlay(track);
+  };
+
+  const handleClickLike = async (id: string) => {
+    await addFavoriteTrack(id);
+    const newFavoriteList = await getAllFavoriteTracks();
+    dispatch(setFavoriteList(newFavoriteList.data));
+  };
+
+  const handleClickDisLike = async (id: string) => {
+    await deleteFavoriteTrack(id);
+    const newFavoriteList = await getAllFavoriteTracks();
+    dispatch(setFavoriteList(newFavoriteList.data));
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const authUser = localStorage.getItem("userName");
+      setIsAuthUser(authUser);
+    }
+
+    if (isAuthUser) {
+      const getAllFavorites = async () => {
+        try {
+          const response = await getAllFavoriteTracks();
+          if (response) {
+            dispatch(setFavoriteList(response.data));
+            setFavoriteTracks(response?.data);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      getAllFavorites();
+    }
+  }, [isAuthUser, dispatch, favoriteTracks]);
 
   return (
     <div className={styles.contentPlaylist}>
-      {trackList.map((track) => (
-        <div key={track._id} className={styles.playlistItem}>
-          <div className={styles.playlistTrack}>
-            <div className={styles.trackTitle}>
-              <div
-                onClick={() => handleClickTrack(track)}
-                className={styles.trackTitleImage}
-              >
-                <svg className={styles.trackTitleSvg}>
-                  <use xlinkHref="img/icon/sprite.svg#icon-note"></use>
-                </svg>
-              </div>
-              <div className="track__title-text">
-                <a className={styles.trackTitleLink} href="http://">
-                  {track.name} <span className={styles.trackTitleSpan}></span>
-                </a>
-              </div>
-            </div>
-            <div className={styles.trackAuthor}>
-              <a className={styles.trackAuthorLink} href="http://">
-                {track.author}
-              </a>
-            </div>
-            <div className={styles.trackAlbum}>
-              <a className={styles.trackAlbumLink} href="http://">
-                {track.album}
-              </a>
-            </div>
-            <div className="track__time">
-              <svg className={styles.trackTimeSvg}>
-                <use xlinkHref="img/icon/sprite.svg#icon-like"></use>
-              </svg>
-              <span className={styles.trackTimeText}>
-                {timeFormat(track.duration_in_seconds)}
-              </span>
-            </div>
-          </div>
-        </div>
+      {tracks?.map((track: TrackType) => (
+        <Track
+          key={track._id}
+          track={track}
+          handleClickTrack={handleClickTrack}
+          currentTrack={currentTrack}
+          player={player}
+          handleClickLike={handleClickLike}
+          timeFormat={timeFormat}
+          favoriteTracks={favoriteTracks}
+          handleClickDisLike={handleClickDisLike}
+          isAuthUser={isAuthUser}
+        />
       ))}
     </div>
   );

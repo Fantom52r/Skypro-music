@@ -1,78 +1,69 @@
 "use client";
 import styles from "./centerBlock.module.css";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Search from "../Search/Search";
 import Filter from "../Filter/Filter";
 import TrackList from "../TrackList/TrackList";
-import { getData } from "../../../API/TrackApi";
+import { getData, getAllFavoriteTracks } from "../../../API/TrackApi";
 import { TrackType } from "../../../types";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
+import { setTracks, setFavoriteList } from "../../../store/features/trackSlice";
+import { useRouter, usePathname, useSearchParams } from "next/navigation"; 
 
-const UNIQ_FILTERS: Filters = {
-  AUTORS: [],
-  DATES: [],
-  GENRES: [],
-};
-
-interface Filters {
-  AUTORS: string[];
-  DATES: string[];
-  GENRES: string[];
-}
-
-const CenterBlock = ({
-  currentTrack,
-  setCurrentTrack,
-  togglePlay,
-}) => {
-  const [trackList, setTrackList] = useState<TrackType[]>([]);
-  const [uniqFilters, setUniqFilters] = useState(UNIQ_FILTERS);
-
-  const getUniqFilters = (res: TrackType[]) => {
-    const uniqGenres = {};
-    const uniqDates = {};
-    const uniqAuthors = {};
-
-    res.forEach((track) => {
-      if (track.author !== "-") {
-        uniqAuthors[track.author] = true;
-      }
-    });
-    const listAuthors = Object.keys(uniqAuthors);
-
-    res.forEach((track) => {
-      uniqDates[track.release_date.slice(0, 4)] = true;
-    });
-    const listDates = Object.keys(uniqDates);
-
-    res.forEach((track) => {
-      track.genre.forEach((genre) => {
-        uniqGenres[genre] = true;
-      });
-    });
-    const listGenres = Object.keys(uniqGenres);
-
-    setUniqFilters({
-      AUTORS: listAuthors,
-      DATES: listDates,
-      GENRES: listGenres,
-    });
-  };
+const CenterBlock = ({ togglePlay }) => {
+  const [isFavorites, setIsFavorites] = useState(false);
+  const trackList: TrackType[] = useSelector(
+    (state: RootState) => state.tracks.trackList
+  );
+  const favoriteTracks: TrackType[] = useSelector(
+    (state: RootState) => state.tracks.favoriteList
+  );
+  const dispatch = useDispatch();
+  const pathname = usePathname();
+  const searchParams = useSearchParams(); 
+  const router = useRouter(); 
 
   useEffect(() => {
-    const getDataTracks = async () => {
-      const response: TrackType[] = await getData();
-      setTrackList(response);
-      getUniqFilters(response);
+    const viewParam = searchParams?.get("view"); 
+    if (viewParam === "favorites") {
+      setIsFavorites(true); 
+    } else {
+      setIsFavorites(false); 
+    }
+
+    const getAllTracks = async () => {
+      let response;
+      if (isFavorites) { 
+        response = await getAllFavoriteTracks();
+        if (response) {
+          dispatch(setFavoriteList(response.data));
+        }
+      } else { 
+        response = await getData();
+        if (response) {
+          dispatch(setTracks(response));
+        }
+      }
     };
-    getDataTracks();
-  }, []);
+    getAllTracks();
+  }, [dispatch, isFavorites, searchParams]); 
+
+  const tracksToDisplay = isFavorites ? favoriteTracks : trackList;
+
+  const handleNavigate = (path) => {
+    if (path === "favorites") {
+      router.push("/home?view=favorites");
+    } else {
+      router.push("/home?view=all");
+    }
+  };
 
   return (
     <div className="main__centerblock centerblock">
       <Search />
       <h2 className="centerblock__h2">Треки</h2>
-      <Filter uniqFilters={uniqFilters} />
+      <Filter />
       <div className="centerblock__content playlist-content">
         <div className="content__title playlist-title">
           <div className="playlist-title__col col01">Трек</div>
@@ -84,12 +75,8 @@ const CenterBlock = ({
             </svg>
           </div>
         </div>
-        <TrackList
-          trackList={trackList}
-          currentTrack={currentTrack}
-          setCurrentTrack={setCurrentTrack}
-          togglePlay={togglePlay}
-        />
+
+        <TrackList tracks={tracksToDisplay} togglePlay={togglePlay} />
       </div>
     </div>
   );

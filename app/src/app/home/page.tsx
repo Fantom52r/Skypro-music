@@ -1,63 +1,100 @@
 "use client";
 
+import dynamic from 'next/dynamic'; 
 import Header from "../components/Header/Header";
-import CenterBlock from "../components/CenterBlock/CenterBlock";
 import SideBar from "../components/Sidebar/SideBar";
 import PlayerBar from "../components/PlayerBar/PlayerBar";
 import { useState, useRef, useEffect } from "react";
 import { TrackType } from "../../types";
+import { getData } from "../../API/TrackApi";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { setPlay } from "../../store/features/playerSlice";
+import { setFilters } from "../../store/features/filterSlice";
+import { setCurrentTrack, setTracks } from "../../store/features/trackSlice";
 
-const TRACK = {
-  _id: 32,
-  name: "Essence2",
-  author: "MED",
-  release_date: "1920-05-03",
-  genre: ["Электронная музыка"],
-  duration_in_seconds: 205,
-  album: "Essence2",
-  logo: {
-    type: "Buffer",
-    data: [],
-  },
-  track_file:
-    "https://webdev-music-003b5b991590.herokuapp.com/media/music_files/MED_-_Essence2.mp3",
-  staredUser: [],
-};
+const CenterBlock = dynamic(() => import('../components/CenterBlock/CenterBlock'), {
+  ssr: false, 
+});
 
 export default function Home() {
-  const [currentTrack, setCurrentTrack] = useState<TrackType>(TRACK);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoop, setIsLoop] = useState(false);
-  const [volume, setVolume] = useState(0.5); // Начальная громкость установлена на 50%
-  const [currentTime, setCurrentTime] = useState(0);
+  const player = useSelector((state: RootState) => state.player);
+  const currentTrack = useSelector(
+    (state: RootState) => state.tracks.currentTrack
+  );
+  const dispatch = useDispatch();
 
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-
-  const togglePlay = (track: TrackType = TRACK) => {
+  const togglePlay = (track: TrackType) => {
     const audio = audioRef.current;
-    if (isPlaying && track.name === currentTrack.name) {
+    if (audio && player.isPlaying && track.name === currentTrack?.name) {
       audio.pause();
-      setIsPlaying(false);
-    } else {
+      dispatch(setPlay(false));
+    } else if (audio) {
       audio.play();
-      setIsPlaying(true);
+      dispatch(setPlay(true));
     }
   };
 
+  const getUniqFilters = (res: TrackType[]) => {
+    const uniqGenres = {};
+    const uniqDates = {};
+    const uniqAuthors = {};
+
+    res.forEach((track) => {
+      if (track.author !== "-") {
+        uniqAuthors[track.author] = true;
+      }
+    });
+    const listAuthors = Object.keys(uniqAuthors);
+
+    res.forEach((track) => {
+      uniqDates[track.release_date.slice(0, 4)] = true;
+    });
+    const listDates = Object.keys(uniqDates);
+
+    res.forEach((track) => {
+      track.genre.forEach((genre) => {
+        uniqGenres[genre] = true;
+      });
+    });
+    const listGenres = Object.keys(uniqGenres);
+
+    dispatch(
+      setFilters({
+        AUTORS: listAuthors,
+        DATES: listDates,
+        GENRES: listGenres,
+      })
+    );
+  };
+
+  useEffect(() => {
+    const getDataTracks = async () => {
+      const response: TrackType[] = await getData();
+      dispatch(setTracks(response));
+      dispatch(setCurrentTrack(response[0]));
+      getUniqFilters(response);
+    };
+    getDataTracks();
+  }, [dispatch]);
+
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio && isPlaying) {
+    if (audio && player.isPlaying) {
       audio.play();
     }
-    audio.loop = isLoop;
-  }, [currentTrack, isPlaying, isLoop]);
+    if (audio) {
+      audio.loop = player.isLoop;
+    }
+  }, [currentTrack, player.isPlaying, player.isLoop]);
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      audioRef.current.volume = player.volume;
     }
-  }, [volume]);
+  }, [player.volume]);
 
   return (
     <>
@@ -65,27 +102,10 @@ export default function Home() {
         <div className="container">
           <main className="main">
             <Header />
-            <CenterBlock
-              currentTrack={currentTrack}
-              setCurrentTrack={setCurrentTrack}
-              togglePlay={togglePlay}
-            />
+            <CenterBlock togglePlay={togglePlay} /> 
             <SideBar />
           </main>
-          <PlayerBar
-            currentTrack={currentTrack}
-            setCurrentTrack={setCurrentTrack}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            togglePlay={togglePlay}
-            audioRef={audioRef}
-            isLoop={isLoop}
-            setIsLoop={setIsLoop}
-            volume={volume}
-            setVolume={setVolume}
-            currentTime={currentTime}
-            setCurrentTime={setCurrentTime}
-          />
+          <PlayerBar togglePlay={togglePlay} audioRef={audioRef} />
           <footer className="footer"></footer>
         </div>
       </div>
