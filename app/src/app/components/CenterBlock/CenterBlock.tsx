@@ -1,10 +1,13 @@
 "use client";
-import styles from "./centerBlock.module.css";
 import React, { useEffect, useState } from "react";
 import Search from "../Search/Search";
 import Filter from "../Filter/Filter";
 import TrackList from "../TrackList/TrackList";
-import { getData, getAllFavoriteTracks } from "../../../API/TrackApi";
+import {
+  getData,
+  getAllFavoriteTracks,
+  getTrackByCompilation,
+} from "../../../API/TrackApi";
 import { TrackType } from "../../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
@@ -13,51 +16,68 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 const CenterBlock = ({ togglePlay }) => {
   const [isFavorites, setIsFavorites] = useState(false);
+  const [currentTracks, setCurrentTracks] = useState<TrackType[]>([]);
+
   const trackList: TrackType[] = useSelector(
     (state: RootState) => state.tracks.trackList
   );
   const favoriteTracks: TrackType[] = useSelector(
     (state: RootState) => state.tracks.favoriteList
   );
+
   const dispatch = useDispatch();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   useEffect(() => {
     const viewParam = searchParams?.get("view");
+    let response;
     if (viewParam === "favorites") {
-      setIsFavorites(true);
-    } else {
-      setIsFavorites(false);
-    }
-
-    const getAllTracks = async () => {
-      let response;
-      if (isFavorites) {
+      const getFavoriteTracks = async () => {
         response = await getAllFavoriteTracks();
         if (response) {
           dispatch(setFavoriteList(response.data));
         }
-      } else {
-        response = await getData();
+      };
+      setIsFavorites(true);
+      getFavoriteTracks();
+    } else if (viewParam?.split("/")[0] === "compilation") {
+      const getTrackByCompilationId = async () => {
+        response = await getTrackByCompilation(+viewParam?.split("/")[1]);
+        if (response) {
+          setCurrentTracks(
+            trackList.filter((track) => response.data.items.includes(track._id))
+          );
+          console.log(
+            trackList.filter((track) => response.data.items.includes(track._id))
+          );
+        }
+      };
+      getTrackByCompilationId();
+      setIsFavorites(false);
+    } else if (viewParam === "all") {
+      const getAllTracks = async () => {
+        const response = await getData();
         if (response) {
           dispatch(setTracks(response));
+          setCurrentTracks(response);
         }
+      };
+      getAllTracks();
+    }
+  }, [dispatch, isFavorites, searchParams]);
+
+  useEffect(() => {
+    const getAllTracks = async () => {
+      const response = await getData();
+      if (response) {
+        dispatch(setTracks(response));
+        setCurrentTracks(response);
       }
     };
     getAllTracks();
-  }, [dispatch, isFavorites, searchParams]);
+  }, []);
 
-  const tracksToDisplay = isFavorites ? favoriteTracks : trackList;
-
-  const handleNavigate = (path) => {
-    if (path === "favorites") {
-      router.push("/home?view=favorites");
-    } else {
-      router.push("/home?view=all");
-    }
-  };
+  const tracksToDisplay = isFavorites ? favoriteTracks : currentTracks;
 
   return (
     <div className="main__centerblock centerblock">

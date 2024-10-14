@@ -60,26 +60,12 @@ const TrackList = ({ tracks, togglePlay }) => {
       const authUser = localStorage.getItem("userName");
       setIsAuthUser(authUser);
     }
-
-    if (isAuthUser) {
-      const getAllFavorites = async () => {
-        try {
-          const response = await getAllFavoriteTracks();
-          if (response) {
-            dispatch(setFavoriteList(response.data));
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      getAllFavorites();
-    }
   }, [isAuthUser, dispatch]);
   useEffect(() => {}, [favoriteTracks, trackList]);
 
   return (
     <div className={styles.contentPlaylist}>
-      {trackList?.map((track: TrackType) => (
+      {tracks?.map((track: TrackType) => (
         <Track
           key={track._id}
           track={track}

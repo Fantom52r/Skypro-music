@@ -32,20 +32,8 @@ const SideBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleClickNavigate = async (path, compilation) => {
+  const handleClickNavigate = async (path) => {
     router.push(path);
-    try {
-      const responses = await Promise.all(
-        compilation.items.map(async (trackId) => {
-          const response = await getTrackById(trackId);
-          return response;
-        })
-      );
-      console.log(responses);
-      dispatch(setTracks(responses));
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   useEffect(() => {
@@ -97,8 +85,7 @@ const SideBar = () => {
               <button
                 onClick={() =>
                   handleClickNavigate(
-                    `/home?/compilation/${compilation?._id}`,
-                    compilation
+                    `/home/?view=compilation/${compilation?._id}`
                   )
                 }
                 className={styles.sidebarLink}
