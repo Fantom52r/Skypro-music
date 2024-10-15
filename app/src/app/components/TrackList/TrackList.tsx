@@ -17,11 +17,16 @@ import Track from "../track/Track";
 
 const TrackList = ({ tracks, togglePlay }) => {
   const [isAuthUser, setIsAuthUser] = useState<string | null>(null);
-  const [favoriteTracks, setFavoriteTracks] = useState<TrackType[]>([]);
 
   const currentTrack: TrackType | null = useSelector(
     (state: RootState) => state?.tracks.currentTrack
   );
+
+  const favoriteTracks = useSelector(
+    (state: RootState) => state.tracks.favoriteList
+  );
+
+  const trackList = useSelector((state: RootState) => state.tracks.trackList);
   const player = useSelector((state: RootState) => state.player);
   const dispatch = useDispatch();
 
@@ -55,22 +60,8 @@ const TrackList = ({ tracks, togglePlay }) => {
       const authUser = localStorage.getItem("userName");
       setIsAuthUser(authUser);
     }
-
-    if (isAuthUser) {
-      const getAllFavorites = async () => {
-        try {
-          const response = await getAllFavoriteTracks();
-          if (response) {
-            dispatch(setFavoriteList(response.data));
-            setFavoriteTracks(response?.data);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      getAllFavorites();
-    }
-  }, [isAuthUser, dispatch, favoriteTracks]);
+  }, [isAuthUser, dispatch]);
+  useEffect(() => {}, [favoriteTracks, trackList]);
 
   return (
     <div className={styles.contentPlaylist}>

@@ -13,6 +13,20 @@ export const getData = async () => {
   }
 };
 
+export const getTrackById = async (id) => {
+  try {
+    const response = await fetch(`${URL}/catalog/track/${id}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    const responseData = await response.json();
+    return responseData.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const registerUser = async ({ username, email, password }) => {
   try {
     const response = await fetch(`${URL}/user/signup/`, {
@@ -132,6 +146,44 @@ export const deleteFavoriteTrack = async (id) => {
       },
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    return response.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getCompilation = async () => {
+  try {
+    const access = localStorage.getItem("accessToken");
+    const response = await fetch(`${URL}/catalog/selection/all`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    return response.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getTrackByCompilation = async (id) => {
+  try {
+    const access = localStorage.getItem("accessToken");
+    const response = await fetch(`${URL}/catalog/selection/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message);

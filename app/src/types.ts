@@ -11,4 +11,10 @@ export type TrackType = {
   _id: number;
 };
 
-
+export type Compilation = {
+  _id: number;
+  name: string;
+  items: number[];
+  owner: number[];
+  __v: number;
+};
